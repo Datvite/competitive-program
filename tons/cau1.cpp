@@ -34,6 +34,25 @@ int mul(int a, int b)
     return ((a % MOD) * (b % MOD)) % MOD;
 }
 int n, a[N];
+//sieve
+bool is_prime[N];
+vector<int> prime;
+void sieve()
+{
+    for (int i = 0; i < N; i++)
+        is_prime[i] = true;
+    is_prime[0] = is_prime[1] = false;
+    for (int i = 2; i * i < N; i++)
+        if (is_prime[i])
+            for (int j = i * i; j < N; j += i)
+                is_prime[j] = false;
+    for (int i = 2; i < N; i++)
+        if (is_prime[i])
+            prime.push_back(i);
+    for (int i = 0; i < 10; i++)
+        cout << prime[i] << " ";
+}
+
 void solve()
 {
     
