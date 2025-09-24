@@ -7,7 +7,7 @@
     if (fopen(tenfile ".inp", "r"))           \
     {                                         \
         freopen(tenfile ".inp", "r", stdin);  \
-        freopen(tenfile ".out", "w", stdout);  \
+        freopen(tenfile ".out", "w", stdout); \
     }
 #define int long long
 #define fi first
@@ -34,7 +34,7 @@ int mul(int a, int b)
     return ((a % MOD) * (b % MOD)) % MOD;
 }
 int n, a[N];
-//sieve
+// sieve
 bool is_prime[N];
 vector<int> prime;
 void sieve()
@@ -52,7 +52,10 @@ void sieve()
 }
 void solve()
 {
-    
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> a[i];
+    }
 }
 main()
 {
