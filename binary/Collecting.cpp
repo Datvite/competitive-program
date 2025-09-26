@@ -9,7 +9,6 @@
         freopen(tenfile ".inp", "r", stdin);  \
         freopen(tenfile ".out", "w", stdout); \
     }
-#define int long long
 #define fi first
 #define se second
 #define ii pair<int, int>
@@ -33,30 +32,37 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, a[N];
-// sieve
-bool is_prime[N];
-vector<int> prime;
-void sieve()
+int n, v[N], w[N], k;
+double c[N];
+bool check(double mid)
 {
-    for (int i = 0; i < N; i++)
-        is_prime[i] = true;
-    is_prime[0] = is_prime[1] = false;
-    for (int i = 2; i * i < N; i++)
-        if (is_prime[i])
-            for (int j = i * i; j < N; j += i)
-                is_prime[j] = false;
-    for (int i = 2; i < N; i++)
-        if (is_prime[i])
-            prime.push_back(i);
+    for (int i = 1; i <= n; i++)
+        c[i] = v[i] - w[i] * mid;
+    sort(c + 1, c + n + 1, greater<double>());
+    double sum = 0;
+    for (int i = 1; i <= k; i++)
+        sum += c[i];
+    return sum >= 0;
 }
 void solve()
 {
+    for (int i = 1; i <= n; i++)
+        cin >> v[i] >> w[i];
+    double l = 0, r = 1e9, mid;
+    for (int i = 1; i <= 100; i++)
+    {
+        mid = (l + r) / 2;
+        if (check(mid))
+            l = mid;
+        else
+            r = mid;
+    }
+    cout << fixed << setprecision(10) << l;
 }
 main()
 {
     skibidi;
     file("");
-    cin >> n;
+    cin >> n >> k;
     solve();
 }

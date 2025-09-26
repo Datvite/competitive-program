@@ -33,30 +33,42 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, a[N];
-// sieve
-bool is_prime[N];
-vector<int> prime;
-void sieve()
+int n, a[N], k;
+bool check(int mid)
 {
-    for (int i = 0; i < N; i++)
-        is_prime[i] = true;
-    is_prime[0] = is_prime[1] = false;
-    for (int i = 2; i * i < N; i++)
-        if (is_prime[i])
-            for (int j = i * i; j < N; j += i)
-                is_prime[j] = false;
-    for (int i = 2; i < N; i++)
-        if (is_prime[i])
-            prime.push_back(i);
+    int last = a[1], cnt = 1;
+    for (int i = 2; i <= n; i++)
+    {
+        if (a[i] - last >= mid)
+        {
+            cnt++;
+            last = a[i];
+        }
+        if (cnt >= k)
+            return 1;
+    }
+    return 0;
 }
 void solve()
 {
+    for (int i = 1; i <= n; i++)
+        cin >> a[i];
+    sort(a + 1, a + n + 1);
+    int l = 1, r = 1e18, ans = 0;
+    while (l <= r)
+    {
+        int mid = (l + r) / 2;
+        if (check(mid))
+            ans = mid, l = mid + 1;
+        else
+            r = mid - 1;
+    }
+    cout << ans;
 }
 main()
 {
     skibidi;
     file("");
-    cin >> n;
+    cin >> n >> k;
     solve();
 }
