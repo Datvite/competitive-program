@@ -33,64 +33,14 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, m, k;
-bool check(int mid)
-{
-    if (m <= n)
-    {
-        int s = 0;
-        for (int i = 1; i <= m; i++)
-        {
-            int j = mid / i;
-            if (j >= 1)
-            {
-                s += min(j, n);
-            }
-            if (s >= k)
-                return 1;
-        }
-        return 0;
-    }
-    else
-    {
-        int s = 0;
-        for (int j = 1; j <= n; j++)
-        {
-            int i = mid / j;
-            if (i >= 1)
-            {
-                s += min(i, m);
-            }
-            if (s >= k)
-                return 1;
-        }
-        return 0;
-    }
-}
+int n, a[N];
 void solve()
 {
-    int l = 0, r = 9e18;
-    int ans = 0;
-    while (l <= r)
-    {
-        int mid = (l + r) / 2;
-        if (check(mid))
-        {
-            ans = mid;
-            r = mid - 1;
-        }
-        else
-        {
-            l = mid + 1;
-            // test
-        }
-    }
-    cout << ans;
 }
 main()
 {
     skibidi;
     file("");
-    cin >> m >> n >> k;
+    cin >> n;
     solve();
 }
