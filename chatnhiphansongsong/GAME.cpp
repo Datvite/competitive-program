@@ -36,7 +36,13 @@ int mul(int a, int b)
 int n, a[N];
 void solve()
 {
-    
+    for (int i = 1; i <= n; i++)
+        cin >> a[i];
+    sort(a + 1, a + n + 1);
+    int res = 0;
+    for (int i = 1; i <= n / 2; i++)
+        res += (a[i] + a[n - i + 1]) * (a[i] + a[n - i + 1]);
+    cout << res;
 }
 main()
 {
