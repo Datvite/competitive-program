@@ -34,26 +34,46 @@ int mul(int a, int b)
     return ((a % MOD) * (b % MOD)) % MOD;
 }
 int t, n, k, a[N], b[N];
+bool check(int mid)
+{
+    int cnt = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        if (a[i] < mid)
+            continue;
+        cnt += (a[i] - mid) / b[i] + 1;
+    }
+    return cnt <= k;
+}
 void solve()
 {
-    priority_queue<ii, vector<ii>> pq;
     cin >> n >> k;
     for (int i = 1; i <= n; i++)
         cin >> a[i];
     for (int i = 1; i <= n; i++)
         cin >> b[i];
-    for (int i = 1; i <= n; i++)
-        pq.push({a[i], b[i]});
-    int ans = 0;
-    while (k--)
+    int l = 0, r = 1e9, ans = -1;
+    while (l <= r)
     {
-        ii top = pq.top();
-        pq.pop();
-        ans += top.fi;
-        top.fi = max(0LL, top.fi - top.se);
-        pq.push(top);
+        int mid = (l + r) / 2;
+        if (check(mid))
+        {
+            ans = mid;
+            r = mid - 1;
+        }
+        else
+            l = mid + 1;
     }
-    cout << ans << endl;
+    int sum = 0, cnt = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        if (a[i] < ans)
+            continue;
+        int cur = (a[i] - ans) / b[i] + 1;
+        sum += cur * a[i] - b[i] * (cur * (cur - 1) / 2);
+        cnt += cur;
+    }
+    cout << sum - (k - cnt) * ans << endl;
 }
 main()
 {
@@ -61,5 +81,5 @@ main()
     file("");
     cin >> t;
     while (t--)
-    solve();
+        solve();
 }

@@ -18,9 +18,9 @@
 #define Off(mask, pos) (mask ^ (1LL << pos))
 #define endl "\n"
 using namespace std;
-const int N = 1e5 + 69;
+const int N = 1e6 + 69;
 const int BASE = 256;
-const int MOD = 1e9 + 7;
+const int MOD = 2e9 + 11;
 int add(int a, int b)
 {
     return (a + b) % MOD;
@@ -33,32 +33,35 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], dp[102][N], pre[102][N];
+int n, k, m, a[N], ans = 0;
+void ql(int x, int d){
+    if (d == k)
+    {
+        if (x == 1)
+        ans++;
+        return;
+    }
+    if (x - 1 == 0)
+        ql(n, d + 1);
+    else
+        ql(x - 1, d + 1);
+    if (x + 1 > n)
+        ql(1, d + 1);
+    else
+        ql(x + 1, d + 1);
+}
 void solve()
 {
-    for (int i = 1; i <= n; i++)
-        cin >> a[i];
-    dp[0][0] = 1;
-    for (int j = 0; j <= k; j++)
-        pre[0][j] = 1;
-    for (int i = 1; i <= n; i++)
-    {
-        pre[i][0] = dp[i - 1][0];
-        for (int j = 1; j <= k; j++)
-            pre[i][j] = add(pre[i][j - 1], dp[i - 1][j]);
-        for (int j = 0; j <= k; j++)
-        {
-            dp[i][j] = pre[i][j];
-            if (j - a[i] - 1 >= 0)
-                dp[i][j] = sub(dp[i][j], pre[i][j - a[i] - 1]);
-        }
-    }
-    cout << dp[n][k] << endl;
+    ql(1, 0);
+    cout << ans % m;
 }
 main()
 {
     skibidi;
-    file("");
-    cin >> n >> k;
+    file("JUMP");
+    cin >> n >> k >> m;
+    if (k > 20)
+    cout << 0;
+    else
     solve();
 }
