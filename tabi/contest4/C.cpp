@@ -33,15 +33,64 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, a[N];
+int t, n, m, k, sum[501][501], a[501][501], cnt = 0;
+string str[501];
+void reset()
+{
+    for (int i = 0; i <= n; i++)
+        for (int j = 0; j <= m; j++)
+        {
+            sum[i][j] = 0;
+            a[i][j] = 0;
+        }
+    cnt = 0;
+}
 void solve()
 {
-
+    reset();
+    cin >> n >> m >> k;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> str[i];
+        str[i] = " " + str[i];
+        for (int j = 1; j <= m; j++)
+            if (str[i][j] == 'g')
+            {
+                a[i][j] = 1;
+                cnt++;
+            }
+            else
+                a[i][j] = 0;
+    }
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 1; j <= m; j++)
+            sum[i][j] = sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1] + a[i][j];
+    }
+    int minn = 1e18;
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 1; j <= m; j++)
+        {
+            if (str[i][j] == '.')
+            {
+                int x1 = max(1LL, i - (k - 1));
+                int y1 = max(1LL, j - (k - 1));
+                int x2 = min(n, i + (k - 1));
+                int y2 = min(m, j + (k - 1));
+                int res = 0;
+                res = sum[x2][y2] - sum[x1 - 1][y2] - sum[x2][y1 - 1] + sum[x1 - 1][y1 - 1];
+                minn = min(minn, res);
+            }
+        }
+    }
+    cout << cnt - minn << endl;
 }
 main()
 {
     skibidi;
     file("");
-    cin >> n;
-    solve();
+    cin >> t;
+    while (t--)
+        solve();
 }
