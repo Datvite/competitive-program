@@ -33,45 +33,58 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, a[N], k;
-bool check(int mid)
+int t, n, m, a[N], sum[N], sum1 = 0, sum2 = 0, ans = 0;
+priority_queue<int, vector<int>, greater<int>> pqg;
+priority_queue<int, vector<int>, less<int>> pql;
+void reset()
 {
-    int r = 1, cnt = 0;
-    for (int l = 1; l <= n; l++)
-    {
-        if (r < l)
-            r = l;
-        while (r < n && a[r + 1] - a[l] <= mid)
-            r++;
-        cnt += r - l;
-        if (cnt >= k)
-            return 1;
-    }
-    return cnt >= k;
+    ans = 0;
+    sum1 = 0;
+    sum2 = 0;
+    while (!pqg.empty())
+        pqg.pop();
+    while (!pql.empty())
+        pql.pop();
 }
 void solve()
 {
+    reset();
+    cin >> n >> m;
     for (int i = 1; i <= n; i++)
-        cin >> a[i];
-    sort(a + 1, a + n + 1);
-    int l = 0, r = a[n] - a[1], ans = -1;
-    while (l <= r)
+            cin >> a[i];
+    for (int i = m; i >= 2; i--)
     {
-        int mid = (l + r) >> 1;
-        if (check(mid))
+        sum1 += a[i];
+        if (a[i] > 0)
+            pql.push(a[i]);
+        while (sum1 > 0 && !pql.empty())
         {
-            ans = mid;
-            r = mid - 1;
+            int x = pql.top();
+            pql.pop();
+            sum1 -= 2 * x;
+            ans++;
         }
-        else
-            l = mid + 1;
+    }
+    for (int i = m + 1; i <= n; i++)
+    {
+        sum2 += a[i];
+        if (a[i] < 0)
+            pqg.push(a[i]);
+        while (sum2 < 0 && !pqg.empty())
+        {
+            int x = pqg.top();
+            pqg.pop();
+            sum2 -= 2 * x;
+            ans++;
+        }
     }
     cout << ans << endl;
 }
 main()
 {
     skibidi;
-    file("SUMLCM");
-    cin >> n >> k;
+    file("");
+    cin >> t;
+    while (t--)
     solve();
 }

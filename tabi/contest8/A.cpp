@@ -33,45 +33,52 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, a[N], k;
-bool check(int mid)
+int n, a[N];
+bool snt[N];
+void sieve()
 {
-    int r = 1, cnt = 0;
-    for (int l = 1; l <= n; l++)
-    {
-        if (r < l)
-            r = l;
-        while (r < n && a[r + 1] - a[l] <= mid)
-            r++;
-        cnt += r - l;
-        if (cnt >= k)
-            return 1;
-    }
-    return cnt >= k;
+    snt[0] = snt[1] = 0;
+    for (int i = 2; i * i < N; i++)
+        if (snt[i])
+            for (int j = i * i; j < N; j += i)
+                snt[j] = 0;
 }
 void solve()
 {
-    for (int i = 1; i <= n; i++)
-        cin >> a[i];
-    sort(a + 1, a + n + 1);
-    int l = 0, r = a[n] - a[1], ans = -1;
-    while (l <= r)
+    for (int i = 2 * n; i >= 2; i--)
     {
-        int mid = (l + r) >> 1;
-        if (check(mid))
+        if (!snt[i])
+            continue;
+        int l = max(1LL, i - n);
+        int r = min(n, i - 1);
+        for (int j = l; j <= r; j++)
         {
-            ans = mid;
-            r = mid - 1;
+            int x = i - j;
+            if (a[j] == 0 && a[x] == 0)
+            {
+                a[j] = x;
+                a[x] = j;
+            }
         }
-        else
-            l = mid + 1;
     }
-    cout << ans << endl;
+    for (int i = 1; i <= n; i++)
+        if (a[i] == 0)
+        {
+            cout << "IMPOSSIBLE";
+            return;
+        }
+    for (int i = 1; i <= n; i++)
+        cout << i << " ";
+    cout << endl;
+    for (int i = 1; i <= n; i++)
+        cout << a[i] << " ";
 }
 main()
 {
     skibidi;
-    file("SUMLCM");
-    cin >> n >> k;
+    file("");
+    memset(snt, 1, sizeof(snt));
+    cin >> n;
+    sieve();
     solve();
 }

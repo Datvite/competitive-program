@@ -18,7 +18,7 @@
 #define Off(mask, pos) (mask ^ (1LL << pos))
 #define endl "\n"
 using namespace std;
-const int N = 1e6 + 69;
+const int N = 1e3 + 69;
 const int BASE = 256;
 const int MOD = 2e9 + 11;
 int add(int a, int b)
@@ -33,45 +33,32 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, a[N], k;
-bool check(int mid)
-{
-    int r = 1, cnt = 0;
-    for (int l = 1; l <= n; l++)
-    {
-        if (r < l)
-            r = l;
-        while (r < n && a[r + 1] - a[l] <= mid)
-            r++;
-        cnt += r - l;
-        if (cnt >= k)
-            return 1;
-    }
-    return cnt >= k;
-}
+int n, a[N], dp[N][N], sum[N];
 void solve()
 {
     for (int i = 1; i <= n; i++)
-        cin >> a[i];
-    sort(a + 1, a + n + 1);
-    int l = 0, r = a[n] - a[1], ans = -1;
-    while (l <= r)
-    {
-        int mid = (l + r) >> 1;
-        if (check(mid))
         {
-            ans = mid;
-            r = mid - 1;
+            cin >> a[i];
+            sum[i] = sum[i - 1] + a[i];
         }
-        else
-            l = mid + 1;
+    for (int len = 2; len <= n; len++)
+    {
+        for (int l = 1; l + len - 1 <= n; l++)
+        {
+            int r = l + len - 1;
+            dp[l][r] = 1e18;
+            for (int k = l; k < r; k++)
+            {
+                dp[l][r] = min(dp[l][r], dp[l][k] + dp[k + 1][r] + sum[r] - sum[l - 1]);
+            }
+        }
     }
-    cout << ans << endl;
+    cout << dp[1][n] << endl;
 }
 main()
 {
     skibidi;
-    file("SUMLCM");
-    cin >> n >> k;
+    file("");
+    cin >> n;
     solve();
 }

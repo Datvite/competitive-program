@@ -38,45 +38,47 @@ struct node
     int max1, max2, cnt1, cnt2;
 };
 node tree[4 * N];
-node merge(node left, node right)
+node merge(node L, node R)
 {
+    int v[4] = {L.max1, L.max2, R.max1, R.max2};
+    int c[4] = {L.cnt1, L.cnt2, R.cnt1, R.cnt2};
+    for (int i = 0; i < 4; i++)
+    {
+        if (v[i] == -1e9)
+            continue;
+        for (int j = i + 1; j < 4; j++)
+        {
+            if (v[i] == v[j])
+            {
+                c[i] += c[j];
+                v[j] = -1e9;
+                c[j] = 0;
+            }
+        }
+    }
+    int max1 = -1e9, cnt1 = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        if (v[i] > max1)
+        {
+            max1 = v[i];
+            cnt1 = c[i];
+        }
+    }
+    int max2 = -1e9, cnt2 = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        if (v[i] != max1 && v[i] > max2)
+        {
+            max2 = v[i];
+            cnt2 = c[i];
+        }
+    }
     node res;
-    if (left.max1 == right.max1)
-    {
-        res.max1 = left.max1;
-        res.cnt1 = left.cnt1 + right.cnt1;
-        res.max2 = max(left.max2, right.max2);
-        if (left.max2 == right.max2)
-            res.cnt2 = left.cnt2 + right.cnt2;
-        else if (left.max2 > right.max2)
-            res.cnt2 = left.cnt2;
-        else
-            res.cnt2 = right.cnt2;
-    }
-    else if (left.max1 > right.max1)
-    {
-        res.max1 = left.max1;
-        res.cnt1 = left.cnt1;
-        res.max2 = max(left.max2, right.max1);
-        if (left.max2 == right.max1)
-            res.cnt2 = left.cnt2 + right.cnt1;
-        else if (left.max2 > right.max1)
-            res.cnt2 = left.cnt2;
-        else
-            res.cnt2 = right.cnt1;
-    }
-    else
-    {
-        res.max1 = right.max1;
-        res.cnt1 = right.cnt1;
-        res.max2 = max(right.max2, left.max1);
-        if (right.max2 == left.max1)
-            res.cnt2 = right.cnt2 + left.cnt1;
-        else if (right.max2 > left.max1)
-            res.cnt2 = right.cnt2;
-        else
-            res.cnt2 = left.cnt1;
-    }
+    res.max1 = max1;
+    res.cnt1 = cnt1;
+    res.max2 = max2;
+    res.cnt2 = cnt2;
     return res;
 }
 void update(int id, int l, int r, int pos, int val)
@@ -95,12 +97,18 @@ void update(int id, int l, int r, int pos, int val)
     update(id << 1, l, mid, pos, val);
     update(id << 1 | 1, mid + 1, r, pos, val);
     tree[id] = merge(tree[id << 1], tree[id << 1 | 1]);
-
 }
 node get(int id, int l, int r, int u, int v)
 {
     if (v < l || r < u)
-        return { -1e9, -1e9, 0, 0};
+    {
+        node res;
+        res.max1 = -1e9;
+        res.max2 = -1e9;
+        res.cnt1 = 0;
+        res.cnt2 = 0;
+        return res;
+    }
     if (u <= l && r <= v)
     {
         return tree[id];
@@ -127,9 +135,8 @@ void solve()
         }
         else
         {
-            ii res1 = get(1, 1, n, l, r, -1e9);
-            ii res2 = get(1, 1, n, l, r, res1.fi);
-            cout << res2.se << endl;
+            node res = get(1, 1, n, l, r);
+            cout << res.cnt2 << endl;
         }
     }
 }

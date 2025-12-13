@@ -18,7 +18,7 @@
 #define Off(mask, pos) (mask ^ (1LL << pos))
 #define endl "\n"
 using namespace std;
-const int N = 1e6 + 69;
+const int N = 1e3 + 69;
 const int BASE = 256;
 const int MOD = 2e9 + 11;
 int add(int a, int b)
@@ -33,45 +33,43 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, a[N], k;
-bool check(int mid)
+int S, k, n, a[N][N];
+vector<int> v;
+void Try(int id, int last, int sum)
 {
-    int r = 1, cnt = 0;
-    for (int l = 1; l <= n; l++)
+    if (id > k)
     {
-        if (r < l)
-            r = l;
-        while (r < n && a[r + 1] - a[l] <= mid)
-            r++;
-        cnt += r - l;
-        if (cnt >= k)
-            return 1;
+        if (sum == S)
+        {
+            cout << "YES" << endl;
+            for (auto x : v)
+                cout << x << " ";
+            exit(0);
+        }
+        return;
     }
-    return cnt >= k;
+    for (int i = 1; i <= n; i++)
+    {
+        if (a[id][i] >= last && sum + a[id][i] <= S)
+        {
+            v.push_back(a[id][i]);
+            Try(id + 1, a[id][i], sum + a[id][i]);
+            v.pop_back();
+        }
+    }
 }
 void solve()
 {
-    for (int i = 1; i <= n; i++)
-        cin >> a[i];
-    sort(a + 1, a + n + 1);
-    int l = 0, r = a[n] - a[1], ans = -1;
-    while (l <= r)
-    {
-        int mid = (l + r) >> 1;
-        if (check(mid))
-        {
-            ans = mid;
-            r = mid - 1;
-        }
-        else
-            l = mid + 1;
-    }
-    cout << ans << endl;
+    for (int j = 1; j <= n; j++)
+        for (int i = 1; i <= k; i++)
+            cin >> a[i][j];
+    Try(1, -1, 0);
+    cout << "NO";
 }
 main()
 {
     skibidi;
-    file("SUMLCM");
-    cin >> n >> k;
+    file("V8SCORE");
+    cin >> S >> k >> n;
     solve();
 }

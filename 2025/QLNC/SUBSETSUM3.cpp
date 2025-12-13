@@ -33,45 +33,44 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, a[N], k;
-bool check(int mid)
+int n, m, a[N], ans = 0, s[N];
+vector<int> res, v;
+void Try(int id, int sum)
 {
-    int r = 1, cnt = 0;
-    for (int l = 1; l <= n; l++)
+    if (ans == m - 1)
+        return;
+    if (id > n && sum < m)
     {
-        if (r < l)
-            r = l;
-        while (r < n && a[r + 1] - a[l] <= mid)
-            r++;
-        cnt += r - l;
-        if (cnt >= k)
-            return 1;
+        if (sum > ans)
+        {
+            ans = sum;
+            res = v;
+        }
+        return;
     }
-    return cnt >= k;
+    if (id > n || sum > m || sum + s[n] - s[id - 1] < ans)
+        return;
+    v.push_back(id);
+    Try(id + 1, sum + a[id]);
+    v.pop_back();
+    Try(id + 1, sum);
 }
 void solve()
 {
     for (int i = 1; i <= n; i++)
-        cin >> a[i];
-    sort(a + 1, a + n + 1);
-    int l = 0, r = a[n] - a[1], ans = -1;
-    while (l <= r)
-    {
-        int mid = (l + r) >> 1;
-        if (check(mid))
         {
-            ans = mid;
-            r = mid - 1;
+            cin >> a[i];
+            s[i] = s[i - 1] + a[i];
         }
-        else
-            l = mid + 1;
-    }
+    Try(1, 0);
     cout << ans << endl;
+    for (auto x : res)
+        cout << x << " ";
 }
 main()
 {
     skibidi;
-    file("SUMLCM");
-    cin >> n >> k;
+    file("SUBSETSUM3");
+    cin >> n >> m;
     solve();
 }

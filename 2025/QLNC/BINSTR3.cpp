@@ -33,45 +33,24 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, a[N], k;
-bool check(int mid)
+int n, k, a[N];
+void ql(int id, int cnt, string s)
 {
-    int r = 1, cnt = 0;
-    for (int l = 1; l <= n; l++)
+    if (id > n)
     {
-        if (r < l)
-            r = l;
-        while (r < n && a[r + 1] - a[l] <= mid)
-            r++;
-        cnt += r - l;
-        if (cnt >= k)
-            return 1;
+        cout << s << endl;
+        return;
     }
-    return cnt >= k;
-}
-void solve()
-{
-    for (int i = 1; i <= n; i++)
-        cin >> a[i];
-    sort(a + 1, a + n + 1);
-    int l = 0, r = a[n] - a[1], ans = -1;
-    while (l <= r)
+    ql(id + 1, cnt, s + '0');
+    if (cnt + 1 <= k)
     {
-        int mid = (l + r) >> 1;
-        if (check(mid))
-        {
-            ans = mid;
-            r = mid - 1;
-        }
-        else
-            l = mid + 1;
+        ql(id + 1, cnt + 1, s + '1');
     }
-    cout << ans << endl;
 }
 main()
 {
     skibidi;
-    file("SUMLCM");
+    file("BINSTR3");
     cin >> n >> k;
-    solve();
+    ql(1, 0, "");
 }
