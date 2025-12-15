@@ -9,7 +9,6 @@
         freopen(tenfile ".inp", "r", stdin);  \
         freopen(tenfile ".out", "w", stdout); \
     }
-#define int long long
 #define fi first
 #define se second
 #define ii pair<int, int>
@@ -18,7 +17,7 @@
 #define Off(mask, pos) (mask ^ (1LL << pos))
 #define endl "\n"
 using namespace std;
-const int N = 1e6 + 69;
+const int N = 2e5 + 69;
 const int BASE = 256;
 const int MOD = 2e9 + 11;
 int add(int a, int b)
@@ -34,7 +33,9 @@ int mul(int a, int b)
     return ((a % MOD) * (b % MOD)) % MOD;
 }
 int n, t, q, S;
-int a[N], cnt[N], ans[N];
+int a[N];
+vector<int> cnt[N];
+vector<int> ans[N];
 int L = 1, R = 0;
 mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
 int rand(int l, int r)
@@ -46,30 +47,6 @@ struct query
     int l, r, id;
 } qu[N];
 
-void MO(int i)
-{   
-    while (L < qu[i].l)
-    {
-        cnt[a[L]]--;
-        L++;
-    }
-    while (L > qu[i].l)
-    {
-        L--;
-        cnt[a[L]]++;
-    }
-    while (R < qu[i].r)
-    {
-        R++;
-        cnt[a[R]]++;
-    }
-    while (R > qu[i].r)
-    {
-        cnt[a[R]]--;
-        R--;
-    }
-}
-
 bool cmp(query a, query b)
 {
     if (a.l / S == b.l / S)
@@ -78,18 +55,28 @@ bool cmp(query a, query b)
 }
 void reset()
 {
+    for (int i = 1; i <= q; i++)
+        ans[i].clear();
     for (int i = 1; i <= n; i++)
-        cnt[i] = 0;
+        cnt[i].clear();
     L = 1;
     R = 0;
 }
 void solve()
 {
-    reset();
     cin >> n >> q;
+    reset();
     S = sqrt(n);
     for (int i = 1; i <= n; i++)
         cin >> a[i];
+    // nén số
+    vector<int> tmp(a + 1, a + n + 1);
+    sort(tmp.begin(), tmp.end());
+    tmp.erase(unique(tmp.begin(), tmp.end()), tmp.end());
+    for (int i = 1; i <= n; i++)
+        a[i] = lower_bound(tmp.begin(), tmp.end(), a[i]) - tmp.begin() + 1;
+    for (int i = 1; i <= n; i++)
+        cnt[a[i]].push_back(i);
     for (int i = 1; i <= q; i++)
     {
         cin >> qu[i].l >> qu[i].r;
@@ -98,22 +85,33 @@ void solve()
     sort(qu + 1, qu + 1 + q, cmp);
     for (int i = 1; i <= q; i++)
     {
-        MO(i);
-        int res = 1e18;
-        for (int j = 1; j <= 100; j++)
+        int len = (qu[i].r - qu[i].l + 1) / 3;
+        unordered_map<int, int> used;
+        for (int j = 1; j <= 60; j++)
         {
-            int id = rand(qu[i].l, qu[i].r);
-            if (cnt[a[id]] > (qu[i].r - qu[i].l + 1) / 3)
-                res = min(res, a[id]);
+            int pos = rand(qu[i].l, qu[i].r);
+            int cnts = upper_bound(cnt[a[pos]].begin(), cnt[a[pos]].end(), qu[i].r) - lower_bound(cnt[a[pos]].begin(), cnt[a[pos]].end(), qu[i].l);
+            if (cnts > len)
+                used[a[pos]]++;
         }
-        ans[qu[i].id] = res;
+        for (auto x : used)
+        {
+            int val = x.fi;
+            int cnts = upper_bound(cnt[val].begin(), cnt[val].end(), qu[i].r) - lower_bound(cnt[val].begin(), cnt[val].end(), qu[i].l);
+            if (cnts > len)
+                ans[qu[i].id].push_back(tmp[val - 1]);
+        }
     }
     for (int i = 1; i <= q; i++)
-        if (ans[i] == 1e18)
-            cout << -1 << " ";
+    {
+        sort(ans[i].begin(), ans[i].end());
+        if (ans[i].size() == 0)
+            cout << -1;
         else
-            cout << ans[i] << endl;
-    cout << endl;
+            for (auto z : ans[i])
+                cout << z << " ";
+        cout << endl;
+    }
 }
 main()
 {
