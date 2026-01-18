@@ -33,35 +33,42 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, k, ans = 1e18, a[N];
+unordered_map<int, int> mp;
 void solve()
 {
     for (int i = 1; i <= n; i++)
     {
         cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
     }
-    l = n;
-    r = n;
-    while (l > 0)
+    for (int i = 1; i <= n; i++)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
+        vector<int> v;
+        for (int j = 1; j <= a[i]; j++)
         {
-            st = l;
-            en = r;
+            int x;
+            cin >> x;
+            v.push_back(x);
         }
-        l--;
+        sort(v.begin(), v.end());
+        v.erase(unique(v.begin(), v.end()), v.end());
+        for (auto x : v)
+            mp[x]++;
     }
-    cout << st << " " << en;
+    for (auto x : mp)
+    {
+        if (x.se == n)
+            ans = min(ans, x.fi);
+    }
+    if (ans == 1e18)
+        cout << "x" << endl;
+    else
+        cout << ans << endl;
 }
 main()
 {
     skibidi;
-    file("PS");
+    file("");
     cin >> n;
     solve();
 }

@@ -33,36 +33,42 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, a[N], fact[N], invfact[N];
+int power(int a, int b)
+{
+    int res = 1;
+    while (b)
+    {
+        if (b & 1)
+            res = mul(res, a);
+        a = mul(a, a);
+        b >>= 1;
+    }
+    return res;
+}
+int C(int n, int k)
+{
+    return mul(fact[n], mul(invfact[k], invfact[n - k]));
+}
 void solve()
 {
-    for (int i = 1; i <= n; i++)
-    {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
-    }
-    cout << st << " " << en;
+    // 2 * C(2 * n - 1, n - 1) - n;
+    if (n == 1)
+        cout << 1;
+    else
+        cout << sub(mul(2, C(2 * n - 1, n - 1)), n);
 }
 main()
 {
     skibidi;
-    file("PS");
+    file("");
     cin >> n;
+    fact[0] = 1;
+    for (int i = 1; i <= 2 * n; i++)
+        fact[i] = mul(fact[i - 1], i);
+    invfact[2 * n] = power(fact[2 * n], MOD - 2);
+    for (int i = 2 * n - 1; i >= 0; i--)
+        invfact[i] = mul(invfact[i + 1], i + 1);
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

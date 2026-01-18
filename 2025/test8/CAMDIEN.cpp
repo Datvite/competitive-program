@@ -33,36 +33,31 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, m, cnt = 0, a[N];
 void solve()
 {
     for (int i = 1; i <= n; i++)
-    {
         cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
+    sort(a + 1, a + n + 1, greater<int>());
+    for (int i = 1; i <= n; i++)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
+        if (i == 1)
+            cnt += a[i];
+        else
+            cnt += a[i] - 1;
+        if (cnt >= m)
         {
-            st = l;
-            en = r;
+            cout << i;
+            return;
         }
-        l--;
     }
-    cout << st << " " << en;
+    cout << -1;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
+    file("CAMDIEN");
+    cin >> n >> m;
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

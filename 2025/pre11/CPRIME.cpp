@@ -18,7 +18,7 @@
 #define Off(mask, pos) (mask ^ (1LL << pos))
 #define endl "\n"
 using namespace std;
-const int N = 1e6 + 69;
+const int N = 1e7 + 69;
 const int BASE = 256;
 const int MOD = 1e9 + 7;
 int add(int a, int b)
@@ -33,37 +33,34 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int t, n, a[N], prefix[2 * N];
+bool is_prime[N];
+void sieve()
+{
+    is_prime[0] = is_prime[1] = 0;
+    for (int i = 2; i < N; i++)
+        is_prime[i] = 1;
+    for (int i = 2; i * i < N; i++)
+        if (is_prime[i])
+            for (int j = i * i; j < N; j += i)
+                is_prime[j] = 0;
+    for (int i = 1; i < N; i++)
+        prefix[i] = prefix[i - 1] + is_prime[i];
+}
 void solve()
 {
-    for (int i = 1; i <= n; i++)
-    {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
-    }
-    cout << st << " " << en;
+    int l, r;
+    cin >> l >> r;
+    cout << prefix[r] - prefix[l - 1] << endl;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
-    solve();
+    file("CPRIME");
+    cin >> t;
+    sieve();
+    while (t--)
+        solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.
 +*@@@@@@@@@@@@@@:.=++%@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%@@@@@@@@@@%%%#%#%####%%%%%#%#%##########*.

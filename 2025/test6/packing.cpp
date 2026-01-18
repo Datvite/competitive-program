@@ -33,36 +33,30 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, S, a[N];
+bool dp[N];
 void solve()
 {
     for (int i = 1; i <= n; i++)
-    {
         cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
+    dp[0] = 1;
+    for (int i = 1; i <= n; i++)
+        for (int j = S; j >= a[i]; j--)
+            if (dp[j - a[i]])
+                dp[j] = 1;
+    for (int i = S; i >= 0; i--)
+        if (dp[i])
         {
-            st = l;
-            en = r;
+            cout << i;
+            return;
         }
-        l--;
-    }
-    cout << st << " " << en;
+    
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
+    file("PACKING");
+    cin >> n >> S;
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

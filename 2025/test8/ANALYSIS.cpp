@@ -33,35 +33,44 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, a[N];
+vector<vector<int>> res;
+vector<int> tmp;
+void backtrack(int x, int sum)
+{
+    if (sum == n)
+    {
+        res.push_back(tmp);
+        return;
+    }
+    for (int i = x; i >= 1; i--)
+    {
+        if (sum + i > n)
+            continue;
+        tmp.push_back(i);
+        backtrack(i, sum + i);
+        tmp.pop_back();
+    }
+}
 void solve()
 {
-    for (int i = 1; i <= n; i++)
+    backtrack(n, 0);
+    cout << res.size() << endl;
+    for (auto v : res)
     {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
+        for (int i = 0; i < v.size(); i++)
+            {
+                cout << v[i];
+                if (i != v.size() - 1)
+                    cout << "+";
+            }
+        cout << endl;
     }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
-    }
-    cout << st << " " << en;
 }
 main()
 {
     skibidi;
-    file("PS");
+    file("ANALYSIS");
     cin >> n;
     solve();
 }

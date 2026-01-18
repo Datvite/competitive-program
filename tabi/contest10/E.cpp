@@ -33,37 +33,44 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int t, x, y, a, b;
+bool check(double mid)
+{
+    int cur1 = max(0.0, ceil((mid * a - y) / (a - b)));
+    int cur2 = min(mid, floor((x - mid * b) / (a - b)));
+    return cur1 <= cur2;
+}
 void solve()
 {
-    for (int i = 1; i <= n; i++)
+    cin >> x >> y >> a >> b;
+    int l = 0, r = 1e9, res = 0;
+    if (a == b)
     {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
+        cout << min(x / a, y / a) << endl;
+        return;
     }
-    l = n;
-    r = n;
-    while (l > 0)
+    if (b > a)
+        swap(a, b);
+    while (l <= r)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
+        int mid = (l + r) / 2;
+        if (check(mid))
         {
-            st = l;
-            en = r;
+            res = mid;
+            l = mid + 1;
         }
-        l--;
+        else
+            r = mid - 1;
     }
-    cout << st << " " << en;
+    cout << res << endl;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
-    solve();
+    file("");
+    cin >> t;
+    while (t--)
+        solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.
 +*@@@@@@@@@@@@@@:.=++%@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%@@@@@@@@@@%%%#%#%####%%%%%#%#%##########*.

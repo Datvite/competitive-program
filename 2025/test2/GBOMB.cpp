@@ -33,36 +33,57 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
-void solve()
+int n, m, k;
+bool check(int mid, vector<vector<char>> a)
 {
+    int ans = 0;
     for (int i = 1; i <= n; i++)
     {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
+        int mark = 0, cnt = 0;
+        for (int j = 1; j <= m; j++)
         {
-            st = l;
-            en = r;
+            if (a[i][j] == 'x')
+            {
+                if (j <= mark)
+                    continue;
+                else
+                {
+                    cnt++;
+                    mark = j + 2 * mid;
+                }
+            }
+            if (a[i][j] == '#')
+                mark = 0;
         }
-        l--;
+        ans += cnt;
     }
-    cout << st << " " << en;
+    return ans <= k;
+}
+void solve()
+{
+    vector<vector<char>> a(n + 1, vector<char>(m + 1));
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= m; j++)
+            cin >> a[i][j];
+    int l = 0, r = m, ans = -1;
+    while (l <= r)
+    {
+        int mid = (l + r) / 2;
+        if (check(mid, a))
+        {
+            ans = mid;
+            r = mid - 1;
+        }
+        else
+            l = mid + 1;
+    }
+    cout << ans;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
+    file("GBOMB");
+    cin >> n >> m >> k;
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

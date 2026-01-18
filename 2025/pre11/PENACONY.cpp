@@ -33,37 +33,31 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int t, n, a[N], inv = (MOD + 1) / 2;
 void solve()
 {
-    for (int i = 1; i <= n; i++)
+    cin >> n;
+    int res = 0;
+    res = add(res, n + 1);
+    for (int i = 1; i <= n;)
     {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
+        int tmp = n / i;
+        int j = n / tmp;
+        int sum = mul(mul(add(i, j), sub(j + 1, i)), inv);
+        int tmp1 = mul(mul(tmp, add(n, 1)), sub(j + 1, i));
+        int tmp2 = mul(mul(mul(tmp, add(tmp, 1)), sum), inv);
+        res = add(res, sub(tmp1, tmp2));
+        i = j + 1;
     }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
-    }
-    cout << st << " " << en;
+    cout << res << endl;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
-    solve();
+    file("PENACONY");
+    cin >> t;
+    while (t--)
+        solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.
 +*@@@@@@@@@@@@@@:.=++%@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%@@@@@@@@@@%%%#%#%####%%%%%#%#%##########*.

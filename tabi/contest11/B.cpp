@@ -33,37 +33,55 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int t, n, a[N], tree[4 * N], ans = 0;
+void update(int id, int l, int r, int pos, int val)
+{
+    if (l > pos || r < pos)
+        return;
+    if (l == r)
+    {
+        tree[id] = val;
+        return;
+    }
+    int mid = (l + r) / 2;
+    update(id * 2, l, mid, pos, val);
+    update(id * 2 + 1, mid + 1, r, pos, val);
+    tree[id] = tree[id * 2] + tree[id * 2 + 1];
+}
+int get(int id, int l, int r, int u, int v)
+{
+    if (l > v || r < u)
+        return 0;
+    if (l >= u && r <= v)
+        return tree[id];
+    int mid = (l + r) / 2;
+    return get(id * 2, l, mid, u, v) + get(id * 2 + 1, mid + 1, r, u, v);
+}
 void solve()
 {
+    cin >> n;
+    for (int i = 1; i <= 4 * n; i++)
+        tree[i] = 0;
+    for (int i = 1; i <= n; i++)
+            cin >> a[i];
     for (int i = 1; i <= n; i++)
     {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
+        if (a[i] < i)
         {
-            st = l;
-            en = r;
+            ans += get(1, 1, n, 1, a[i] - 1);
+            update(1, 1, n, i, 1);
         }
-        l--;
     }
-    cout << st << " " << en;
+    cout << ans << endl;
+    ans = 0;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
-    solve();
+    file("");
+    cin >> t;
+    while (t--)
+        solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.
 +*@@@@@@@@@@@@@@:.=++%@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%@@@@@@@@@@%%%#%#%####%%%%%#%#%##########*.

@@ -18,7 +18,7 @@
 #define Off(mask, pos) (mask ^ (1LL << pos))
 #define endl "\n"
 using namespace std;
-const int N = 1e6 + 69;
+const int N = 1e3 + 69;
 const int BASE = 256;
 const int MOD = 1e9 + 7;
 int add(int a, int b)
@@ -33,35 +33,30 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+unsigned long long n;
+unsigned long long dp[N][N];
+unsigned long long lcm(unsigned long long a, unsigned long long b)
+{
+    return (a / __gcd(a, b)) * b;
+}
 void solve()
 {
-    for (int i = 1; i <= n; i++)
-    {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
-    }
-    cout << st << " " << en;
+    cin >> n;
+    dp[0][0] = 1;
+    for (unsigned long long i = 0; i < n; i++)
+        for (unsigned long long s = 0; s <= n; s++)
+            for (unsigned long long j = 1; s + j <= n; j++)
+                if (s + j <= n)
+                    dp[s + j][i + 1] = max(dp[s + j][i + 1], lcm(dp[s][i], j));
+    unsigned long long  ans = 0;
+    for (unsigned long long i = 1; i <= n; i++)
+        ans = max(ans, dp[n][i]);
+    cout << ans;
 }
 main()
 {
     skibidi;
-    file("PS");
+    file("lcmseq");
     cin >> n;
     solve();
 }

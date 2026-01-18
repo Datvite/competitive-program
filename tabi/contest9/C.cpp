@@ -21,6 +21,7 @@ using namespace std;
 const int N = 1e6 + 69;
 const int BASE = 256;
 const int MOD = 1e9 + 7;
+//im gay
 int add(int a, int b)
 {
     return (a + b) % MOD;
@@ -33,37 +34,39 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int t, n, ans = 0, sum = 0, dp[N];
+ii a[N];
 void solve()
 {
+    ans = 0;
+    sum = 0;
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+        cin >> a[i].fi;
     for (int i = 1; i <= n; i++)
     {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
+        cin >> a[i].se;
+        sum += a[i].se;
     }
-    l = n;
-    r = n;
-    while (l > 0)
+    for (int i = 1; i <= n; i++)
+        dp[i] = 0;
+    for (int i = 1; i <= n; i++)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
+        dp[i] = a[i].se;
+        for (int j = 1; j < i; j++)
+            if (a[j].fi <= a[i].fi)
+                dp[i] = max(dp[i], dp[j] + a[i].se);
+        ans = max(ans, dp[i]);
     }
-    cout << st << " " << en;
+    cout << sum - ans << endl;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
-    solve();
+    file("");
+    cin >> t;
+    while (t--)
+        solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.
 +*@@@@@@@@@@@@@@:.=++%@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%@@@@@@@@@@%%%#%#%####%%%%%#%#%##########*.

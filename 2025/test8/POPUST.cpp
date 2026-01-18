@@ -33,35 +33,34 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, maxdiff[N], minval[N], sum = 0;
+ii a[N];
+bool cmp(ii x, ii y)
+{
+    return x.se < y.se;
+}
 void solve()
 {
     for (int i = 1; i <= n; i++)
-    {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
+            cin >> a[i].fi >> a[i].se;
+    sort(a + 1, a + n + 1, cmp);
+    maxdiff[0] = 0  ;
+    for (int i = 1; i <= n; i++)
+        maxdiff[i] = max(maxdiff[i - 1], a[i].fi - a[i].se);
+    minval[n + 1] = 1e18;
+    for (int i = n; i >= 1; i--)
+        minval[i] = min(minval[i + 1], a[i].fi);
+    for (int i = 1; i <= n; i++)
         {
-            st = l;
-            en = r;
+            sum += a[i].se;
+            cout << min(sum + maxdiff[i], sum - a[i].se + minval[i]) << endl;
         }
-        l--;
-    }
-    cout << st << " " << en;
+
 }
 main()
 {
     skibidi;
-    file("PS");
+    file("popust");
     cin >> n;
     solve();
 }

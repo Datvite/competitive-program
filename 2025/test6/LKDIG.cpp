@@ -33,35 +33,31 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, a[N];
+int sticks[] = {6, 2, 5, 5, 4, 5, 6, 3, 7, 6};
+void backtrack(int id, int cur, string s)
+{
+    if (cur < 0)
+        return;
+    if (cur == 0)
+    {
+        cout << s << endl;
+        return;
+    }
+    for (int i = 0; i <= 9; i++)
+    {
+        if (i != 0 || id != 0)
+            backtrack(id + 1, cur - sticks[i], s + char(i + '0'));
+    }
+}
 void solve()
 {
-    for (int i = 1; i <= n; i++)
-    {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
-    }
-    cout << st << " " << en;
+    backtrack(0, n, "");
 }
 main()
 {
     skibidi;
-    file("PS");
+    file("LKDIG");
     cin >> n;
     solve();
 }

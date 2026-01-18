@@ -33,36 +33,39 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, m, a[N];
+bool check(int mid)
+{
+    int cnt = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        cnt += mid / a[i];
+    }
+    return cnt >= m;
+}
 void solve()
 {
     for (int i = 1; i <= n; i++)
-    {
         cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
+    int l = 1, r = 1e18, ans = 0;
+    while (l <= r)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
+        int mid = (l + r) / 2;
+        if (check(mid))
         {
-            st = l;
-            en = r;
+            ans = mid;
+            r = mid - 1;
         }
-        l--;
+        else
+            l = mid + 1;
     }
-    cout << st << " " << en;
+    cout << ans << endl;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
+    file("machines");
+    cin >> n >> m;
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

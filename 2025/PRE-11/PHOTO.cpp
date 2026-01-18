@@ -9,7 +9,6 @@
         freopen(tenfile ".inp", "r", stdin);  \
         freopen(tenfile ".out", "w", stdout); \
     }
-#define int long long
 #define fi first
 #define se second
 #define ii pair<int, int>
@@ -18,7 +17,7 @@
 #define Off(mask, pos) (mask ^ (1LL << pos))
 #define endl "\n"
 using namespace std;
-const int N = 1e6 + 69;
+const int N = 501;
 const int BASE = 256;
 const int MOD = 1e9 + 7;
 int add(int a, int b)
@@ -33,36 +32,29 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, l, r, dp[N][N][N];
 void solve()
 {
-    for (int i = 1; i <= n; i++)
-    {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
-    }
-    cout << st << " " << en;
+    dp[1][1][1] = 1;
+    for (int i = 2; i <= n; i++)
+        for (int j = 1; j <= i; j++)
+            for (int k = 1; k <= i; k++)
+            {
+                int val = 0;
+                if (j - 1 >= 1)
+                    val = add(val, dp[i - 1][j - 1][k]);
+                if (k - 1 >= 1)
+                    val = add(val, dp[i - 1][j][k - 1]);
+                val = add(val, mul(dp[i - 1][j][k], i - 2));
+                dp[i][j][k] = val;
+            }
+    cout << dp[n][l][r];
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
+    file("PHOTO");
+    cin >> n >> l >> r;
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

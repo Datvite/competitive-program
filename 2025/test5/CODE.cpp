@@ -33,36 +33,63 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int t, n, a[N], sump[N], cnt[N];
+bool prime[N];
+void sieve()
+{
+    prime[0] = prime[1] = 1;
+    for (int i = 2; i * i <= 1e6; i++)
+    {
+        if (!prime[i])
+        {
+            for (int j = i * i; j <= 1e6; j += i)
+            {
+                prime[j] = 1;
+            }
+        }
+    }
+}
+int rev(int x)
+{
+    int res = 0;
+    while (x)
+    {
+        res = res * 10 + x % 10;
+        x /= 10;
+    }
+    return res;
+}
+void init()
+{
+    for (int i = 1; i <= 1e6; i++)
+    {
+        sump[i] = sump[i - 1];
+        cnt[i] = cnt[i - 1];
+        if (!prime[i])
+        {
+            sump[i] += i;
+            int r = rev(i);
+            if (r != i && !prime[r] && r <= 1e6)
+            {
+                cnt[i]++;
+            }
+        }
+    }
+}
 void solve()
 {
-    for (int i = 1; i <= n; i++)
-    {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
-    }
-    cout << st << " " << en;
+    int l, r;
+    cin >> l >> r;
+    cout << sump[r] - sump[l - 1] << " " << cnt[r] - cnt[l - 1] << endl;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
+    file("CODE");
+    cin >> t;
+    sieve();
+    init();
+    while (t--)
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

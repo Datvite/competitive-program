@@ -33,36 +33,56 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, m;
+pair<ii, ii> a[N];
+vector<int> ans[N];
+bool cmp(pair<ii, ii> x, pair<ii, ii> y)
+{
+    return x.fi.se < y.fi.se;
+}
 void solve()
 {
     for (int i = 1; i <= n; i++)
     {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
+        int x;
+        cin >> x;
+        a[i] = {{a[i - 1].fi.se, a[i - 1].fi.se + x}, {1, i}};
     }
-    l = n;
-    r = n;
-    while (l > 0)
+    for (int i = n + 1; i <= n + m; i++)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
+        int x;
+        cin >> x;
+        if (i == n + 1)
+            a[i] = {{0, x}, {2, i}};
+        else
+            a[i] = {{a[i - 1].fi.se, a[i - 1].fi.se + x}, {2, i}};
     }
-    cout << st << " " << en;
+    sort(a + 1, a + n + m + 1, cmp);
+    int cur = a[1].fi.se;
+    ans[a[1].se.fi].push_back(a[1].se.se);
+
+    // khác đéo chi mấy bài xếp lịch sao cho ko trùng nhau
+    
+    for (int i = 1; i <= n + m; i++)
+    {
+        if (a[i].fi.fi >= cur)
+        {
+            cur = a[i].fi.se;
+            ans[a[i].se.fi].push_back(a[i].se.se);
+        }
+    }
+    cout << ans[1].size() << " " << ans[2].size() << endl;
+    for (auto x : ans[1])
+        cout << x << " ";
+    cout << endl;
+    for (auto x : ans[2])
+        cout << x - n << " ";
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
+    file("");
+    cin >> n >> m;
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

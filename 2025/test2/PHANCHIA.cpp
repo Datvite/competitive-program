@@ -33,36 +33,27 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, k, S, a[N], dp[N];
+int invmod = 500000004;
 void solve()
 {
     for (int i = 1; i <= n; i++)
-    {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
-    {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
-    }
-    cout << st << " " << en;
+        a[i] = i * 2;
+    S = n * (n + 1) / 2;
+    dp[0] = 1;
+    for (int i = 1; i <= n; i++)
+        for (int j = S + k; j >= a[i]; j--)
+            dp[j] = add(dp[j], dp[j - a[i]]);
+    if (k == 0)
+        cout << mul(dp[S], invmod) << endl;
+    else
+        cout << dp[k + S] << endl;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
+    file("PHANCHIA");
+    cin >> n >> k;
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

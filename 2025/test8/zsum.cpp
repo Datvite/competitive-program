@@ -9,7 +9,6 @@
         freopen(tenfile ".inp", "r", stdin);  \
         freopen(tenfile ".out", "w", stdout); \
     }
-#define int long long
 #define fi first
 #define se second
 #define ii pair<int, int>
@@ -33,37 +32,39 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, m, k, a[N], b[N], c[N];
+unordered_map<int, int> ma;
 void solve()
 {
+    cin >> n >> m >> k;
+    ma.clear();
     for (int i = 1; i <= n; i++)
-    {
         cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
+    for (int i = 1; i <= m; i++)
+        cin >> b[i];
+    for (int i = 1; i <= k; i++)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
+        cin >> c[i];
+        ma[-c[i]]++;
     }
-    cout << st << " " << en;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= m; j++)
+        {
+            if (ma.find(a[i] + b[j]) != ma.end())
+            {
+                cout << 1;
+                return;
+            }
+        }
+    cout << 0;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
-    solve();
+    file("zsum");
+    int t = 2;
+    while (t--)
+        solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.
 +*@@@@@@@@@@@@@@:.=++%@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%@@@@@@@@@@%%%#%#%####%%%%%#%#%##########*.

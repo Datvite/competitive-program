@@ -33,36 +33,58 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int t, n, a[N], tree[4 * N],  ans = 0;
+void update(int id, int l, int r, int pos, int val)
+{
+    if (l > pos || r < pos)
+        return;
+    if (l == r)
+    {
+        tree[id] += val;
+        return;
+    }
+    int mid = (l + r) / 2;
+    update(2 * id, l, mid, pos, val);
+    update(2 * id + 1, mid + 1, r, pos, val);
+    tree[id] = tree[2 * id] + tree[2 * id + 1];
+}
+int get(int id, int l, int r, int u, int v)
+{
+    if (l > v || r < u)
+        return 0;
+    if (l >= u && r <= v)
+        return tree[id];
+    int mid = (l + r) / 2;
+    return get(2 * id, l, mid, u, v) + get(2 * id + 1, mid + 1, r, u, v);
+}
 void solve()
 {
+    cin >> n;
+    vector<int> v;
     for (int i = 1; i <= n; i++)
     {
         cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
+        v.push_back(a[i]);
     }
-    l = n;
-    r = n;
-    while (l > 0)
+    sort(v.begin(), v.end());
+    v.erase(unique(v.begin(), v.end()), v.end());
+    for (int i = 1; i <= n; i++)
+        a[i] = lower_bound(v.begin(), v.end(), a[i]) - v.begin();
+    for (int i = 1; i <= n; i++)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
+        ans += get(1, 1, v.size(), a[i] + 1, v.size());
+        update(1, 1, v.size(), a[i], 1);
     }
-    cout << st << " " << en;
+    cout << ans << endl;
+    ans = 0;
+    memset(tree, 0, sizeof(tree));
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
+    file("invcnt");
+    cin >> t;
+    while (t--)
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

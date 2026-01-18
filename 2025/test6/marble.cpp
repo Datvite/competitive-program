@@ -33,37 +33,38 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, q, a[N], cases = 0;
 void solve()
 {
+    if (n == 0 && q == 0)
+        return;
+    cases++;
+    cout << "CASE# " << cases << ":" << endl;
+    unordered_map<int, int> mp;
+    for (int i = 1; i <= n; i++)
+            cin >> a[i];
+    sort(a + 1, a + n + 1);
     for (int i = 1; i <= n; i++)
     {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
+        if (mp.find(a[i]) == mp.end())
+            mp[a[i]] = i;
     }
-    l = n;
-    r = n;
-    while (l > 0)
+    while (q--)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
+        int x;
+        cin >> x;
+        if (mp.find(x) != mp.end())
+            cout << x << " found at " << mp[x] << endl;
+        else
+            cout << x << " not found" << endl;
     }
-    cout << st << " " << en;
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
-    solve();
+    file("marble");
+    while (cin >> n >> q)
+        solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.
 +*@@@@@@@@@@@@@@:.=++%@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%@@@@@@@@@@%%%#%#%####%%%%%#%#%##########*.

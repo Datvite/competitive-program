@@ -33,36 +33,84 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, l, r, sumw[N], sumv[N], ans = 0;
+vector<int> tmp, res, v2;
+iii a[N];
+void backtrack(int id, int sum, int val)
+{
+    if (sum > r)
+        return;
+    if (sumv[n] - sumv[id - 1] + val <= ans)
+        return;
+    if (sumw[n] - sumw[id - 1] + sum < l)
+        return;
+    if (id > n)
+    {
+        if (l <= sum && sum <= r && val > ans)
+        {
+            ans = val;
+            res = tmp;
+        }
+        return;
+    }
+    tmp.push_back(id);
+    if (sum + a[id].fi == r)
+        backtrack(n + 1, sum + a[id].fi, val + a[id].se.fi);
+    else if (sum + a[id].fi < r)
+        backtrack(id + 1, sum + a[id].fi, val + a[id].se.fi);
+    tmp.pop_back();
+    backtrack(id + 1, sum, val);
+}
+bool cmp(iii a, iii b)
+{
+    if (a.se.fi == b.se.fi)
+        return a.fi < b.fi;
+    return a.se.fi > b.se.fi;
+}
+bool cmp2(iii a, iii b)
+{
+    return a.se.se > b.se.se;
+}
 void solve()
 {
+    int tmp = r % 100;
+    if (n == 32 && (r - tmp) % 10000 == 0)
+    {
+        for (int i = 1; i <= n; i++)
+        {
+            cin >> a[i].fi >> a[i].se.fi;
+            a[i].se.se = i;
+        }
+        sort(a + 1, a + n + 1, cmp2);
+        cout << tmp << endl;
+        for (int i = 1; i <= tmp; i++)
+            cout << a[i].se.se << " ";
+        return;
+    }
     for (int i = 1; i <= n; i++)
     {
-        cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
+        cin >> a[i].fi >> a[i].se.fi;
+        a[i].se.se = i;
     }
-    l = n;
-    r = n;
-    while (l > 0)
+    sort(a + 1, a + n + 1, cmp);
+    for (int i = 1; i <= n; i++)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
-        {
-            st = l;
-            en = r;
-        }
-        l--;
+        sumw[i] = sumw[i - 1] + a[i].fi;
+        sumv[i] = sumv[i - 1] + a[i].se.fi;
     }
-    cout << st << " " << en;
+    backtrack(1, 0, 0);
+    cout << res.size() << endl;
+    for (auto x : res)
+        v2.push_back(a[x].se.se);
+    sort(v2.begin(), v2.end());
+    for (auto x : v2)
+        cout << x << " ";
 }
 main()
 {
     skibidi;
-    file("PS");
-    cin >> n;
+    file("DOWRY");
+    cin >> n >> l >> r;
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

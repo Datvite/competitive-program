@@ -33,35 +33,45 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, k, a[N], s[N], smin[N];
-int l, st = 0, r, en = 0;
+int n, a[N], ans = 0;
+vector<iii> group;
 void solve()
 {
     for (int i = 1; i <= n; i++)
-    {
         cin >> a[i];
-        s[i] = a[i] + s[i - 1];
-        smin[i] = min(smin[i - 1], s[i]);
-    }
-    l = n;
-    r = n;
-    while (l > 0)
+    for (int i = 1; i <= n; i++)
     {
-        while (s[r] - smin[l] < 0)
-            r--;
-        if (s[r] - smin[l - 1] > 0 && r - l > en - st)
+        for (int j = i + 1; j <= n; j++)
         {
-            st = l;
-            en = r;
+            int g = __gcd(a[i], a[j]);
+            group.push_back({g, {i, j}});
         }
-        l--;
     }
-    cout << st << " " << en;
+    sort(group.begin(), group.end(), greater<iii>());
+    int m = group.size();
+    for (int i = 0; i < m; i++)
+    {
+        int g = group[i].fi;
+        int u = group[i].se.fi;
+        int v = group[i].se.se;
+        for (int j = i + 1; j < m; j++)
+        {
+            int g2 = group[j].fi;
+            int u2 = group[j].se.fi;
+            int v2 = group[j].se.se;
+            if (u != u2 && u != v2 && v != u2 && v != v2)
+            {
+                ans = max(ans, g + g2);
+                break;
+            }
+        }
+    }
+    cout << ans << endl;
 }
 main()
 {
     skibidi;
-    file("PS");
+    file("GROUP");
     cin >> n;
     solve();
 }
