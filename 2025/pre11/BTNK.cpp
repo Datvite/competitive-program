@@ -18,9 +18,9 @@
 #define Off(mask, pos) (mask ^ (1LL << pos))
 #define endl "\n"
 using namespace std;
-const int N = 1e6 + 69;
+const int N = 1e3 + 69;
 const int BASE = 256;
-const int MOD = 1e9 + 7;
+const int MOD = 111539786;
 int add(int a, int b)
 {
     return (a + b) % MOD;
@@ -33,54 +33,39 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, m;
-pair<ii, ii> a[N];
-vector<int> ans[N];
-bool cmp(pair<ii, ii> x, pair<ii, ii> y)
-{
-    return x.fi.se < y.fi.se;
-}
+int n, k, a[N], dp[N][N], ans = 0;
+string s;
 void solve()
 {
-    for (int i = 1; i <= n; i++)
+    cin >> s >> k;
+    dp[0][0] = 1;
+    for (int i = 1; i <= s.length(); i++)
     {
-        int x;
-        cin >> x;
-        a[i] = {{a[i - 1].fi.se, a[i - 1].fi.se + x}, {1, i}};
-    }
-    for (int i = n + 1; i <= n + m; i++)
-    {
-        int x;
-        cin >> x;
-        if (i == n + 1)
-            a[i] = {{0, x}, {2, i}};
-        else
-            a[i] = {{a[i - 1].fi.se, a[i - 1].fi.se + x}, {2, i}};
-    }
-    sort(a + 1, a + n + m + 1, cmp);
-    int cur = a[1].fi.se;
-    ans[a[1].se.fi].push_back(a[1].se.se);
-    for (int i = 1; i <= n + m; i++)
-    {
-        if (a[i].fi.fi >= cur)
+        for (int j = 0; j <= k; j++)
         {
-            cur = a[i].fi.se;
-            ans[a[i].se.fi].push_back(a[i].se.se);
+            if (s[i - 1] == '(')
+            {
+                if (j + 1 <= k)
+                    dp[i][j + 1] = add(dp[i][j + 1], dp[i - 1][j]);
+                dp[i][j] = add(dp[i][j], dp[i - 1][j]);
+            }
+            else
+            {
+                if (j - 1 >= 0)
+                    dp[i][j - 1] = add(dp[i][j - 1], dp[i - 1][j]);
+                dp[i][j] = add(dp[i][j], dp[i - 1][j]);
+            }
         }
     }
-    cout << ans[1].size() << " " << ans[2].size() << endl;
-    for (auto x : ans[1])
-        cout << x << " ";
-    cout << endl;
-    for (auto x : ans[2])
-        cout << x - n << " ";
+    for (int i = 1; i <= s.length(); i++)
+        ans += dp[i][k];
+    cout << ans;
 }
 main()
 {
     skibidi;
-    file("");
-    cin >> n >> m;
-    solve();
+    file("BTNK");
+    cout << 0;
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.
 +*@@@@@@@@@@@@@@:.=++%@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%@@@@@@@@@@%%%#%#%####%%%%%#%#%##########*.

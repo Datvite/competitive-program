@@ -33,53 +33,53 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, m;
-pair<ii, ii> a[N];
-vector<int> ans[N];
-bool cmp(pair<ii, ii> x, pair<ii, ii> y)
-{
-    return x.fi.se < y.fi.se;
-}
+int n, mp[N], cnt = 0;
+ii a[N], b[N];
+vector<ii> pairs;
 void solve()
 {
     for (int i = 1; i <= n; i++)
-    {
-        int x;
-        cin >> x;
-        a[i] = {{a[i - 1].fi.se, a[i - 1].fi.se + x}, {1, i}};
-    }
-    for (int i = n + 1; i <= n + m; i++)
-    {
-        int x;
-        cin >> x;
-        if (i == n + 1)
-            a[i] = {{0, x}, {2, i}};
-        else
-            a[i] = {{a[i - 1].fi.se, a[i - 1].fi.se + x}, {2, i}};
-    }
-    sort(a + 1, a + n + m + 1, cmp);
-    int cur = a[1].fi.se;
-    ans[a[1].se.fi].push_back(a[1].se.se);
-    for (int i = 1; i <= n + m; i++)
-    {
-        if (a[i].fi.fi >= cur)
         {
-            cur = a[i].fi.se;
-            ans[a[i].se.fi].push_back(a[i].se.se);
+            cin >> a[i].fi;
+            a[i].se = i;
+        }
+    for (int i = 1; i <= n; i++)
+        {
+            cin >> b[i].fi;
+            b[i].se = i;
+        }
+    sort(a + 1, a + n + 1);
+    sort(b + 1, b + n + 1);
+    int la = 1, lb = 1, ra = n, rb = n;
+    while (la <= ra)
+    {
+         if (a[ra].fi > b[rb].fi)
+        {
+            pairs.push_back({a[ra].se, b[rb].se});
+            ra--;
+            rb--;
+        }
+        else if (a[la].fi > b[lb].fi)
+        {
+            pairs.push_back({a[la].se, b[lb].se});
+            la++;
+            lb++;
+        }
+        else
+        {
+            pairs.push_back({a[la].se, b[rb].se});
+            la++;
+            rb--;
         }
     }
-    cout << ans[1].size() << " " << ans[2].size() << endl;
-    for (auto x : ans[1])
-        cout << x << " ";
-    cout << endl;
-    for (auto x : ans[2])
-        cout << x - n << " ";
+    for (auto x : pairs)
+        cout << x.fi << " " << x.se << endl;
 }
 main()
 {
     skibidi;
-    file("");
-    cin >> n >> m;
+    file("RACE");
+    cin >> n;
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

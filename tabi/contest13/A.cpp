@@ -33,53 +33,34 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, m;
-pair<ii, ii> a[N];
-vector<int> ans[N];
-bool cmp(pair<ii, ii> x, pair<ii, ii> y)
+int n, a[N];
+int is_prime[N];
+void sieve()
 {
-    return x.fi.se < y.fi.se;
+    for (int i = 1; i < N; i++)
+        for (int j = i; j < N; j += i)
+            is_prime[j] += i;
 }
 void solve()
 {
     for (int i = 1; i <= n; i++)
+        cin >> a[i];
+    for (int i = 1; i <= n; i++)
     {
-        int x;
-        cin >> x;
-        a[i] = {{a[i - 1].fi.se, a[i - 1].fi.se + x}, {1, i}};
-    }
-    for (int i = n + 1; i <= n + m; i++)
-    {
-        int x;
-        cin >> x;
-        if (i == n + 1)
-            a[i] = {{0, x}, {2, i}};
+        if (is_prime[a[i]] - a[i] < a[i])
+            cout << "deficient" << endl;
+        else if (is_prime[a[i]] - a[i] == a[i])
+            cout << "perfect" << endl;
         else
-            a[i] = {{a[i - 1].fi.se, a[i - 1].fi.se + x}, {2, i}};
+            cout << "abundant" << endl;
     }
-    sort(a + 1, a + n + m + 1, cmp);
-    int cur = a[1].fi.se;
-    ans[a[1].se.fi].push_back(a[1].se.se);
-    for (int i = 1; i <= n + m; i++)
-    {
-        if (a[i].fi.fi >= cur)
-        {
-            cur = a[i].fi.se;
-            ans[a[i].se.fi].push_back(a[i].se.se);
-        }
-    }
-    cout << ans[1].size() << " " << ans[2].size() << endl;
-    for (auto x : ans[1])
-        cout << x << " ";
-    cout << endl;
-    for (auto x : ans[2])
-        cout << x - n << " ";
 }
 main()
 {
     skibidi;
     file("");
-    cin >> n >> m;
+    cin >> n;
+    sieve();
     solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.

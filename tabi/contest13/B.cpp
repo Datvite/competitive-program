@@ -33,54 +33,58 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, m;
-pair<ii, ii> a[N];
-vector<int> ans[N];
-bool cmp(pair<ii, ii> x, pair<ii, ii> y)
+int t, n, q, prefix[2 * N];
+ii a[N];
+bool cmp(ii x, ii y)
 {
-    return x.fi.se < y.fi.se;
+    if (x.fi == y.fi)
+        return x.se < y.se;
+    return x.fi < y.fi;
 }
 void solve()
 {
+    cin >> n >> q;
     for (int i = 1; i <= n; i++)
+        cin >> a[i].fi >> a[i].se;
+    sort(a + 1, a + n + 1, cmp);
+    for (int i = 1; i <= n; i++)
+        prefix[i] = prefix[i - 1] + a[i].fi * a[i].se;
+    while (q--)
     {
-        int x;
-        cin >> x;
-        a[i] = {{a[i - 1].fi.se, a[i - 1].fi.se + x}, {1, i}};
-    }
-    for (int i = n + 1; i <= n + m; i++)
-    {
-        int x;
-        cin >> x;
-        if (i == n + 1)
-            a[i] = {{0, x}, {2, i}};
-        else
-            a[i] = {{a[i - 1].fi.se, a[i - 1].fi.se + x}, {2, i}};
-    }
-    sort(a + 1, a + n + m + 1, cmp);
-    int cur = a[1].fi.se;
-    ans[a[1].se.fi].push_back(a[1].se.se);
-    for (int i = 1; i <= n + m; i++)
-    {
-        if (a[i].fi.fi >= cur)
+        int h1, h2, w1, w2;
+        cin >> h1 >> h2 >> w1 >> w2;
+        int id1;
+        int id2;
+        while (true)
         {
-            cur = a[i].fi.se;
-            ans[a[i].se.fi].push_back(a[i].se.se);
+            int idx = lower_bound(a + 1, a + n + 1, ii(h1, -1)) - a;
+            if (idx > n || (h1 < a[idx].fi && w1))
+            {
+                id1 = idx - 1;
+                break;
+            }
+            h1 = a[idx].fi;
         }
+        while (true)
+        {
+            int idx = upper_bound(a + 1, a + n + 1, ii(h2, 1e18)) - a - 1;
+            if (idx < 1 || a[idx].fi < h1)
+            {
+                id2 = idx;
+                break;
+            }
+            h2 = a[idx].fi - 1;
+        }
+        cout << prefix[id2] - prefix[id1] << endl;
     }
-    cout << ans[1].size() << " " << ans[2].size() << endl;
-    for (auto x : ans[1])
-        cout << x << " ";
-    cout << endl;
-    for (auto x : ans[2])
-        cout << x - n << " ";
 }
 main()
 {
     skibidi;
     file("");
-    cin >> n >> m;
-    solve();
+    cin >> t;
+    while (t--)
+        solve();
 }
 /*    .:==.  :--=++*%##+++*+===---:::::.:.:::.........................................:............:.
 +*@@@@@@@@@@@@@@:.=++%@@@@@@@@@@@@@@@@@@@@@@@%%%%%%%%%%%%@@@@@@@@@@%%%#%#%####%%%%%#%#%##########*.
