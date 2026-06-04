@@ -20,7 +20,7 @@
 #define endl "\n"
 using namespace std;
 const int N = 1e6 + 69;
-const int BASE = 256;
+const int BASE = 311;
 const int MOD = 1e9 + 7;
 int add(int a, int b)
 {
@@ -34,46 +34,67 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int t, n, m, a[N], pre[N], l[N], r[N], minl[N], dp[N];
-void reset()
+int n, a[N], cnt[2], len = 0;
+string str, str2, news;
+string s;
+int pw[N], h[N], revh[N];
+void build_hash(string s)
 {
-    for (int i = 0; i <= n + 1; i++)
-    {
-        pre[i] = 0;
-        minl[i] = i;
-        dp[i] = 0;
-    }
+    int n = s.size();
+    s = ' ' + s;
+
+    pw[0] = 1;
+    for (int i = 1; i <= n; i++)
+        pw[i] = pw[i - 1] * BASE % MOD;
+
+    for (int i = 1; i <= n; i++)
+        h[i] = (h[i - 1] * BASE + s[i]) % MOD;
+}
+
+int get_hash(int l, int r)
+{
+    return (h[r] - h[l - 1] * pw[r - l + 1] % MOD + MOD) % MOD;
 }
 void solve()
 {
-    cin >> n >> m;
-    reset();
-    for (int i = 1; i <= m; i++)
+    string s, t;
+    cin >> s >> t;
+    for (char c : s)
+        cnt[c - '0']++;
+    int n = s.size();
+    int m = t.size();
+    build_hash(t);
+    int len = 0;
+    for (int i = 1; i < m; i++)
+        if (get_hash(1, i) == get_hash(m - i + 1, m))
+            len = i;
+    string news = "";
+    int id = 0;
+    for (int i = 0; i < n; i++)
     {
-        cin >> l[i] >> r[i];
-        pre[l[i]] += 1;
-        pre[r[i] + 1] -= 1;
-        minl[r[i]] = min(minl[r[i]], l[i]);
+        int x = t[id] - '0';
+        if (cnt[x] > 0)
+        {
+            news += t[id];
+            cnt[x]--;
+            id++;
+            if (id == m)
+                id = len;
+        }
+        else
+            break;
     }
-    for (int i = 1; i <= n; i++)
-        pre[i] += pre[i - 1];
-    for (int i = n; i >= 1; i--)
-        minl[i] = min(minl[i], minl[i + 1]);
-    for (int i = 1; i <= n; i++)
-    {
-        dp[i] = dp[i - 1];
-        if (minl[i] - 1 >= 0)
-            dp[i] = max(dp[i], dp[minl[i] - 1] + pre[i]);
-    }
-    cout << dp[n] << endl;
+    while (cnt[0]--)
+        news += '0';
+    while (cnt[1]--)
+        news += '1';
+    cout << news << endl;
 }
 main()
 {
     skibidi;
     file("");
-    cin >> t;
-    while (t--)
-        solve();
+    solve();
 }
 /*  I am the bone of my sword
     Steel is my body and fire is my blood

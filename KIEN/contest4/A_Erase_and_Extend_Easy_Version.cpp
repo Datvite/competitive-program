@@ -34,46 +34,29 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int t, n, m, a[N], pre[N], l[N], r[N], minl[N], dp[N];
-void reset()
-{
-    for (int i = 0; i <= n + 1; i++)
-    {
-        pre[i] = 0;
-        minl[i] = i;
-        dp[i] = 0;
-    }
-}
+int n, m;
+string s, ans;
 void solve()
 {
-    cin >> n >> m;
-    reset();
-    for (int i = 1; i <= m; i++)
+    for (int i = 0; i < n; i++)
     {
-        cin >> l[i] >> r[i];
-        pre[l[i]] += 1;
-        pre[r[i] + 1] -= 1;
-        minl[r[i]] = min(minl[r[i]], l[i]);
+        string tmp = s.substr(0, i + 1), news;
+        news = tmp;
+        while (news.size() < m)
+            news += tmp;
+        news = news.substr(0, m);
+        if (ans == "" || ans > news)
+            ans = news;
     }
-    for (int i = 1; i <= n; i++)
-        pre[i] += pre[i - 1];
-    for (int i = n; i >= 1; i--)
-        minl[i] = min(minl[i], minl[i + 1]);
-    for (int i = 1; i <= n; i++)
-    {
-        dp[i] = dp[i - 1];
-        if (minl[i] - 1 >= 0)
-            dp[i] = max(dp[i], dp[minl[i] - 1] + pre[i]);
-    }
-    cout << dp[n] << endl;
+    cout << ans << endl;
 }
 main()
 {
     skibidi;
     file("");
-    cin >> t;
-    while (t--)
-        solve();
+    cin >> n >> m;
+    cin >> s;
+    solve();
 }
 /*  I am the bone of my sword
     Steel is my body and fire is my blood

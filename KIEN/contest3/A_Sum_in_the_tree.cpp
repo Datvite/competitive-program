@@ -34,46 +34,67 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int t, n, m, a[N], pre[N], l[N], r[N], minl[N], dp[N];
-void reset()
+int n, a[N], s[N], ans = 0;
+vector<int> g[N];
+int dfs(int u, int par, int cha)
 {
-    for (int i = 0; i <= n + 1; i++)
+    int minn = s[u];
+    if (minn == -1)
+        minn = 1e18;
+    if (s[u] == -1)
     {
-        pre[i] = 0;
-        minl[i] = i;
-        dp[i] = 0;
+        int minv = 1e18;
+        for (int v : g[u])
+            if (v != par)
+                minv = min(minv, s[v]);
+        if (minv != 1e18)
+            s[u] = minv;
     }
+    for (int v : g[u])
+    {
+        int tmp;
+        if (s[u] != -1)
+            tmp = s[u];
+        else
+            tmp = cha;
+        if (v != par)
+        {   
+            int cur = dfs(v, u, tmp);
+            if (cur != -1)
+                minn = min(minn, cur);
+        }
+    }
+    if (minn < s[u])
+    {
+        cout << -1;
+        exit(0);
+    }
+    if (s[u] != -1)
+        a[u] = s[u] - cha;
+    return minn;
 }
 void solve()
 {
-    cin >> n >> m;
-    reset();
-    for (int i = 1; i <= m; i++)
+    for (int i = 2; i <= n; i++)
     {
-        cin >> l[i] >> r[i];
-        pre[l[i]] += 1;
-        pre[r[i] + 1] -= 1;
-        minl[r[i]] = min(minl[r[i]], l[i]);
+        int u;
+        cin >> u;
+        g[u].push_back(i);
     }
     for (int i = 1; i <= n; i++)
-        pre[i] += pre[i - 1];
-    for (int i = n; i >= 1; i--)
-        minl[i] = min(minl[i], minl[i + 1]);
+        cin >> s[i];
+    a[1] = s[1];
+    dfs(1, 0, 0);
     for (int i = 1; i <= n; i++)
-    {
-        dp[i] = dp[i - 1];
-        if (minl[i] - 1 >= 0)
-            dp[i] = max(dp[i], dp[minl[i] - 1] + pre[i]);
-    }
-    cout << dp[n] << endl;
+        ans += a[i];
+    cout << ans;
 }
 main()
 {
     skibidi;
     file("");
-    cin >> t;
-    while (t--)
-        solve();
+    cin >> n;
+    solve();
 }
 /*  I am the bone of my sword
     Steel is my body and fire is my blood

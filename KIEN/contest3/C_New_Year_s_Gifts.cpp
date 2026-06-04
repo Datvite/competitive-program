@@ -34,38 +34,69 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int t, n, m, a[N], pre[N], l[N], r[N], minl[N], dp[N];
-void reset()
+int t, n, m, k, a[N], ans = 0;
+bool mark[N];
+struct newyear
 {
-    for (int i = 0; i <= n + 1; i++)
-    {
-        pre[i] = 0;
-        minl[i] = i;
-        dp[i] = 0;
-    }
+    int id, x, y, z;
+} f[N];
+bool cmp(newyear a, newyear b)
+{
+    return a.x < b.x;
 }
 void solve()
 {
-    cin >> n >> m;
-    reset();
+    cin >> n >> m >> k;
+    ans = 0;
+    for (int i = 1; i <= m; i++)
+        cin >> a[i];
+    sort(a + 1, a + m + 1);
+    int sumy = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> f[i].x >> f[i].y >> f[i].z;
+        mark[i] = 0;
+        f[i].id = i;
+        sumy += f[i].y;
+    }
+    k -= sumy;
+    if (k < 0)
+    {
+        cout << 0 << endl;
+        return;
+    }
+    sort(f + 1, f + n + 1, cmp);
+    int id = 1;
+    set<ii> s;
     for (int i = 1; i <= m; i++)
     {
-        cin >> l[i] >> r[i];
-        pre[l[i]] += 1;
-        pre[r[i] + 1] -= 1;
-        minl[r[i]] = min(minl[r[i]], l[i]);
+        while (id <= n && f[id].x <= a[i])
+        {
+            s.insert({f[id].z - f[id].y, f[id].id});
+            id++;
+        }
+        if (!s.empty())
+        {
+            ii cur = *s.rbegin();
+            s.erase(s.find(cur));
+            mark[cur.se] = 1;
+            ans++;
+        }
     }
+    vector<int> v;
     for (int i = 1; i <= n; i++)
-        pre[i] += pre[i - 1];
-    for (int i = n; i >= 1; i--)
-        minl[i] = min(minl[i], minl[i + 1]);
-    for (int i = 1; i <= n; i++)
+        if (!mark[f[i].id])
+            v.push_back(f[i].z - f[i].y);
+    sort(v.begin(), v.end());
+    for (int x : v)
     {
-        dp[i] = dp[i - 1];
-        if (minl[i] - 1 >= 0)
-            dp[i] = max(dp[i], dp[minl[i] - 1] + pre[i]);
+        if (k >= x)
+        {
+            k -= x;
+            ans++;
+        }
     }
-    cout << dp[n] << endl;
+    cout << ans << endl;
 }
 main()
 {

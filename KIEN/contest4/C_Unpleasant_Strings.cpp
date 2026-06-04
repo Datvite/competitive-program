@@ -34,46 +34,60 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int t, n, m, a[N], pre[N], l[N], r[N], minl[N], dp[N];
-void reset()
-{
-    for (int i = 0; i <= n + 1; i++)
-    {
-        pre[i] = 0;
-        minl[i] = i;
-        dp[i] = 0;
-    }
-}
+int n, m, q, a[N];
+vector<int> cnt[28];
+string str;
 void solve()
 {
-    cin >> n >> m;
-    reset();
-    for (int i = 1; i <= m; i++)
-    {
-        cin >> l[i] >> r[i];
-        pre[l[i]] += 1;
-        pre[r[i] + 1] -= 1;
-        minl[r[i]] = min(minl[r[i]], l[i]);
-    }
     for (int i = 1; i <= n; i++)
-        pre[i] += pre[i - 1];
+        cnt[str[i] - 'a'].push_back(i);
+    cin >> q;
+    int mask = 0;
+    int full = (1 << m) - 1;
     for (int i = n; i >= 1; i--)
-        minl[i] = min(minl[i], minl[i + 1]);
-    for (int i = 1; i <= n; i++)
     {
-        dp[i] = dp[i - 1];
-        if (minl[i] - 1 >= 0)
-            dp[i] = max(dp[i], dp[minl[i] - 1] + pre[i]);
+        int pos = str[i] - 'a';
+        mask = On(mask, pos);
+        if (mask == full)
+        {
+            a[i] = a[i + 1] + 1;
+            mask = 0;
+        }
+        else
+            a[i] = a[i + 1];
     }
-    cout << dp[n] << endl;
+    while (q--)
+    {
+        string x;
+        cin >> x;
+        int tmp = -1;
+        bool check = 1;
+        for (char c : x)
+        {
+            int cur = c - 'a';
+            auto id = upper_bound(all(cnt[cur]), tmp);
+            if (id != cnt[cur].end())
+                tmp = *id;
+            else
+            {
+                check = 0;
+                break;
+            }
+        }
+        if (check)
+            cout << a[tmp + 1] + 1 << endl;
+        else
+            cout << 0 << endl;
+    }
 }
 main()
 {
     skibidi;
     file("");
-    cin >> t;
-    while (t--)
-        solve();
+    cin >> n >> m;
+    cin >> str;
+    str = " " + str;
+    solve();
 }
 /*  I am the bone of my sword
     Steel is my body and fire is my blood

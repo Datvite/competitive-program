@@ -34,38 +34,58 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int t, n, m, a[N], pre[N], l[N], r[N], minl[N], dp[N];
-void reset()
-{
-    for (int i = 0; i <= n + 1; i++)
-    {
-        pre[i] = 0;
-        minl[i] = i;
-        dp[i] = 0;
-    }
-}
+int t, n, m, sum = 0;
 void solve()
 {
     cin >> n >> m;
-    reset();
-    for (int i = 1; i <= m; i++)
-    {
-        cin >> l[i] >> r[i];
-        pre[l[i]] += 1;
-        pre[r[i] + 1] -= 1;
-        minl[r[i]] = min(minl[r[i]], l[i]);
-    }
+    vector<vector<int>> a(n + 7, vector<int>(m + 7, 0));
+    sum = 0;
     for (int i = 1; i <= n; i++)
-        pre[i] += pre[i - 1];
-    for (int i = n; i >= 1; i--)
-        minl[i] = min(minl[i], minl[i + 1]);
+        for (int j = 1; j <= m; j++)
+        {
+            cin >> a[i][j];
+            sum += a[i][j];
+        }
+    int id = 0, cnt = 0, x = sum / 2, id2 = m + 1;
     for (int i = 1; i <= n; i++)
     {
-        dp[i] = dp[i - 1];
-        if (minl[i] - 1 >= 0)
-            dp[i] = max(dp[i], dp[minl[i] - 1] + pre[i]);
+        int suma = 0;
+        for (int j = 1; j <= m; j++)
+            suma += a[i][j];
+        if (cnt + suma <= x)
+        {
+            cnt += suma;
+            id = i;
+        }
+        else
+            break;
     }
-    cout << dp[n] << endl;
+    int cnt1 = x - cnt;
+    if (id < n && cnt1 > 0)
+    {
+        int suma = 0;
+        for (int j = m; j >= 1; j--)
+        {
+            suma += a[id + 1][j];
+            if (suma == cnt1)
+            {
+                id2 = j;
+                break;
+            }
+        }
+    }
+    cout << (sum / 2) * (sum - sum / 2) << endl;
+    for (int i = 1; i <= id; i++)
+        cout << 'D';
+    for (int j = 1; j < id2; j++)
+        cout << 'R';
+    if (id < n)
+        cout << 'D';
+    for (int j = id2; j <= m; j++)
+        cout << 'R';
+    for (int i = id + 2; i <= n; i++)
+        cout << 'D';
+    cout << endl;
 }
 main()
 {
@@ -75,7 +95,7 @@ main()
     while (t--)
         solve();
 }
-/*  I am the bone of my sword
+/* I am the bone of my sword
     Steel is my body and fire is my blood
     I have created over a thousand blades
     Unknown to Death,

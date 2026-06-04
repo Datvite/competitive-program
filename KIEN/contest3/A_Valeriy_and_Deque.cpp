@@ -34,46 +34,58 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int t, n, m, a[N], pre[N], l[N], r[N], minl[N], dp[N];
-void reset()
-{
-    for (int i = 0; i <= n + 1; i++)
-    {
-        pre[i] = 0;
-        minl[i] = i;
-        dp[i] = 0;
-    }
-}
+int n, m, q, a[N], x, y, maxn = 0, st = 0, c[N];
+deque<int> dq;
+vector<ii> ans;
 void solve()
 {
-    cin >> n >> m;
-    reset();
-    for (int i = 1; i <= m; i++)
-    {
-        cin >> l[i] >> r[i];
-        pre[l[i]] += 1;
-        pre[r[i] + 1] -= 1;
-        minl[r[i]] = min(minl[r[i]], l[i]);
-    }
-    for (int i = 1; i <= n; i++)
-        pre[i] += pre[i - 1];
-    for (int i = n; i >= 1; i--)
-        minl[i] = min(minl[i], minl[i + 1]);
     for (int i = 1; i <= n; i++)
     {
-        dp[i] = dp[i - 1];
-        if (minl[i] - 1 >= 0)
-            dp[i] = max(dp[i], dp[minl[i] - 1] + pre[i]);
+        cin >> a[i];
+        dq.push_back(a[i]);
+        maxn = max(maxn, a[i]);
     }
-    cout << dp[n] << endl;
+    while (1)
+    {
+        x = dq.front();
+        dq.pop_front();
+        y = dq.front();
+        dq.pop_front();
+        dq.push_front(max(x, y));
+        dq.push_back(min(x, y));
+        st++;
+        ans.push_back({x, y});
+        if (max(x, y) == maxn)
+            break;
+    }
+    dq.pop_front();
+    for (int i = 1; i < n; i++)
+    {
+        c[i] = dq.front();
+        dq.pop_front();
+    }
+    c[0] = c[n - 1];
+    int len = n - 1;
+    while (q--)
+    {
+        int k;
+        cin >> k;
+        if (k <= st)
+            cout << ans[k - 1].fi << " " << ans[k - 1].se << endl;
+        else
+        {
+            k -= st;
+            k %= len;
+            cout << maxn << " " << c[k] << endl;
+        }
+    }
 }
 main()
 {
     skibidi;
     file("");
-    cin >> t;
-    while (t--)
-        solve();
+    cin >> n >> q;
+    solve();
 }
 /*  I am the bone of my sword
     Steel is my body and fire is my blood

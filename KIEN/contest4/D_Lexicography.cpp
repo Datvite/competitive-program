@@ -19,7 +19,7 @@
 #define Off(mask, pos) (mask ^ (1LL << pos))
 #define endl "\n"
 using namespace std;
-const int N = 1e6 + 69;
+const int N = 1e3 + 69;
 const int BASE = 256;
 const int MOD = 1e9 + 7;
 int add(int a, int b)
@@ -34,46 +34,32 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int t, n, m, a[N], pre[N], l[N], r[N], minl[N], dp[N];
-void reset()
-{
-    for (int i = 0; i <= n + 1; i++)
-    {
-        pre[i] = 0;
-        minl[i] = i;
-        dp[i] = 0;
-    }
-}
+int n, l, k, a[N];
+string str, res[N];
 void solve()
 {
-    cin >> n >> m;
-    reset();
-    for (int i = 1; i <= m; i++)
+    sort(all(str));
+    int id = 1, cnt = 0;
+    for (int i = 1; i <= l; i++)
     {
-        cin >> l[i] >> r[i];
-        pre[l[i]] += 1;
-        pre[r[i] + 1] -= 1;
-        minl[r[i]] = min(minl[r[i]], l[i]);
+        for (int j = id; j <= k; j++)
+            res[j] += str[cnt++];
+        while (id < k && res[id].back() != res[k].back())
+            id++;
     }
     for (int i = 1; i <= n; i++)
-        pre[i] += pre[i - 1];
-    for (int i = n; i >= 1; i--)
-        minl[i] = min(minl[i], minl[i + 1]);
+        while (res[i].size() < l)
+            res[i] += str[cnt++];
     for (int i = 1; i <= n; i++)
-    {
-        dp[i] = dp[i - 1];
-        if (minl[i] - 1 >= 0)
-            dp[i] = max(dp[i], dp[minl[i] - 1] + pre[i]);
-    }
-    cout << dp[n] << endl;
+        cout << res[i] << endl;
 }
 main()
 {
     skibidi;
     file("");
-    cin >> t;
-    while (t--)
-        solve();
+    cin >> n >> l >> k;
+    cin >> str;
+    solve();
 }
 /*  I am the bone of my sword
     Steel is my body and fire is my blood

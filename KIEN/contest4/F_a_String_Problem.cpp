@@ -34,38 +34,58 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int t, n, m, a[N], pre[N], l[N], r[N], minl[N], dp[N];
-void reset()
-{
-    for (int i = 0; i <= n + 1; i++)
-    {
-        pre[i] = 0;
-        minl[i] = i;
-        dp[i] = 0;
-    }
-}
+int t, n;
+string str;
 void solve()
 {
-    cin >> n >> m;
-    reset();
-    for (int i = 1; i <= m; i++)
-    {
-        cin >> l[i] >> r[i];
-        pre[l[i]] += 1;
-        pre[r[i] + 1] -= 1;
-        minl[r[i]] = min(minl[r[i]], l[i]);
-    }
+    cin >> str;
+    n = str.size();
+    str = ' ' + str;
+    vector<int> v;
     for (int i = 1; i <= n; i++)
-        pre[i] += pre[i - 1];
-    for (int i = n; i >= 1; i--)
-        minl[i] = min(minl[i], minl[i + 1]);
-    for (int i = 1; i <= n; i++)
+        if (str[i] != 'a')
+            v.push_back(i);
+    if (v.empty())
     {
-        dp[i] = dp[i - 1];
-        if (minl[i] - 1 >= 0)
-            dp[i] = max(dp[i], dp[minl[i] - 1] + pre[i]);
+        cout << n - 1 << endl;
+        return;
     }
-    cout << dp[n] << endl;
+    int ans = 0;
+    for (int k = 1; k <= v.size(); k++)
+    {
+        if (v.size() % k != 0)
+            continue;
+        int bl = v.size() / k;
+        bool check = 1;
+        for (int i = 1; i < bl; i++)
+        {
+            for (int j = 0; j < k; j++)
+            {
+                if (v[i * k + j] - v[i * k] != v[j] - v[0] || str[v[i * k + j]] != str[v[j]])
+                {
+                    check = 0;
+                    break;
+                }
+            }
+            if (!check)
+                break;
+        }
+        if (check)
+            {
+                int tmp = v[0] - 1;
+                int tmp2 = n - v.back();
+                int minn = 1e18;
+                for (int i = 1; i < bl; i++)
+                    minn = min(minn, v[i * k] - v[i * k - 1] - 1);
+                for (int i = 0; i <= tmp; i++)
+                {
+                    int cur = min(minn - i, tmp2);
+                    if (cur >= 0)
+                        ans += cur + 1;
+                }
+            }
+    }
+    cout << ans << endl;
 }
 main()
 {
