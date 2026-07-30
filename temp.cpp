@@ -679,104 +679,6 @@ struct Kuhn
         return ans;
     }
 };
-struct Dinic
-{
-    struct Edge
-    {
-        int to, rev;
-        long long cap;
-    };
-
-    int n, s, t;
-    vector<vector<Edge>> adj;
-    vector<int> level, ptr;
-
-    Dinic(int _n, int _s, int _t)
-    {
-        n = _n;
-        s = _s;
-        t = _t;
-
-        adj.assign(n + 1, {});
-        level.assign(n + 1, 0);
-        ptr.assign(n + 1, 0);
-    }
-
-    void add_edge(int u, int v, long long cap)
-    {
-        Edge a = {v, (int)adj[v].size(), cap};
-        Edge b = {u, (int)adj[u].size(), 0};
-
-        adj[u].push_back(a);
-        adj[v].push_back(b);
-    }
-
-    bool bfs()
-    {
-        fill(level.begin(), level.end(), -1);
-
-        queue<int> q;
-        q.push(s);
-        level[s] = 0;
-
-        while (!q.empty())
-        {
-            int u = q.front();
-            q.pop();
-
-            for (auto e : adj[u])
-            {
-                if (e.cap > 0 && level[e.to] == -1)
-                {
-                    level[e.to] = level[u] + 1;
-                    q.push(e.to);
-                }
-            }
-        }
-
-        return level[t] != -1;
-    }
-
-    long long dfs(int u, long long flow)
-    {
-        if (u == t || flow == 0)
-            return flow;
-
-        for (int &i = ptr[u]; i < adj[u].size(); i++)
-        {
-            Edge &e = adj[u][i];
-
-            if (level[e.to] != level[u] + 1 || e.cap <= 0)
-                continue;
-
-            long long pushed = dfs(e.to, min(flow, e.cap));
-
-            if (pushed)
-            {
-                e.cap -= pushed;
-                adj[e.to][e.rev].cap += pushed;
-                return pushed;
-            }
-        }
-
-        return 0;
-    }
-
-    long long maxflow()
-    {
-        long long flow = 0;
-
-        while (bfs())
-        {
-            fill(ptr.begin(), ptr.end(), 0);
-
-            while (long long pushed = dfs(s, 1e18))
-                flow += pushed;
-        }
-
-        return flow;
-    }
-};
 struct MinCostMaxFlow
 {
     struct Edge
@@ -1336,3 +1238,439 @@ long long calc(long long x)
 
     return dfs(0, 1);
 }
+struct Dinic
+{
+    struct Edge
+    {
+        int to;
+        long long cap, flow, rev;
+    };
+    int n, s, t;
+    vector<std::vector<Edge>> adj;
+    vector<int> level, ptr;
+    const long long INF = 1e18;
+
+    Dinic(int n, int s, int t) : n(n), s(s), t(t)
+    {
+        adj.resize(2 * n + 7);
+        level.resize(2 * n + 7);
+        ptr.resize(2 * n + 7);
+    }
+    void add_edge(int from, int to, long long cap)
+    {
+        adj[from].push_back({to, cap, 0, (long long)adj[to].size()});
+        adj[to].push_back({from, 0, 0, (long long)adj[from].size() - 1});
+    }
+
+    bool bfs()
+    {
+        fill(level.begin(), level.end(), -1);
+        level[s] = 0;
+        queue<int> q;
+        q.push(s);
+        while (!q.empty())
+        {
+            int v = q.front();
+            q.pop();
+            for (auto &edge : adj[v])
+            {
+                if (edge.cap - edge.flow > 0 && level[edge.to] == -1)
+                {
+                    level[edge.to] = level[v] + 1;
+                    q.push(edge.to);
+                }
+            }
+        }
+        return level[t] != -1;
+    }
+
+    long long dfs(int v, long long pushed)
+    {
+        if (pushed == 0 || v == t)
+            return pushed;
+        for (int &cid = ptr[v]; cid < adj[v].size(); ++cid)
+        {
+            auto &edge = adj[v][cid];
+            int tr = edge.to;
+            if (level[v] + 1 != level[tr] || edge.cap - edge.flow == 0)
+                continue;
+            long long push = dfs(tr, std::min(pushed, edge.cap - edge.flow));
+            if (push == 0)
+                continue;
+            edge.flow += push;
+            adj[tr][edge.rev].flow -= push;
+            return push;
+        }
+        return 0;
+    }
+
+    long long max_flow()
+    {
+        long long flow = 0;
+        while (bfs())
+        {
+            fill(ptr.begin(), ptr.end(), 0);
+            while (long long pushed = dfs(s, INF))
+            {
+                flow += pushed;
+            }
+        }
+        return flow;
+    }
+};
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int l = 1, r = 100;
+
+    while (l <= r) {
+        int mid = (l + r) / 2;
+
+        cout << "? " << mid << endl;
+        cout.flush();          // hoặc fflush(stdout);
+
+        char c;
+        cin >> c;
+
+        if (c == '=')
+            break;
+        else if (c == '<')
+            r = mid - 1;
+        else
+            l = mid + 1;
+    }
+
+    cout << "! " << l << endl;
+    cout.flush();
+}
+int fac[N], revfac[N];
+
+int power(int a, int b)
+{
+    int res = 1;
+    while (b)
+    {
+        if (b & 1)
+            res = res * a % MOD;
+        a = a * a % MOD;
+        b >>= 1;
+    }
+    return res;
+}
+
+void init(int lim)
+{
+    fac[0] = 1;
+    for (int i = 1; i <= lim; i++)
+        fac[i] = fac[i - 1] * i % MOD;
+
+    revfac[lim] = power(fac[lim], MOD - 2);
+    for (int i = lim - 1; i >= 0; i--)
+        revfac[i] = revfac[i + 1] * (i + 1) % MOD;
+}
+
+int C(int n, int k)
+{
+    if (k < 0 || k > n)
+        return 0;
+    return fac[n] * revfac[k] % MOD * revfac[n - k] % MOD;
+}
+int C[N][N];
+
+void init()
+{
+    C[0][0] = 1;
+    for (int i = 1; i < N; i++)
+    {
+        C[i][0] = 1;
+        C[i][i] = 1;
+        for (int j = 1; j < i; j++)
+            C[i][j] = (C[i - 1][j - 1] + C[i - 1][j]) % MOD;
+    }
+}
+struct Matrix
+{
+    int x[maxn][maxn];
+
+    Matrix() {}
+
+    Matrix(int a[maxn][maxn])
+    {
+        for (int i = 1; i <= n; i++)
+        {
+            for (int j = 1; j <= n; j++)
+            {
+                x[i][j] = a[i][j];
+            }
+        }
+    }
+
+    Matrix operator * (const Matrix &b) const
+    {
+        Matrix c;
+
+        for (int i = 1; i <= n; i++)
+        {
+            for (int j = 1; j <= n; j++)
+            {
+                c.x[i][j] = 0;
+
+                for (int k = 1; k <= n; k++)
+                {
+                    c.x[i][j] = add(
+                        c.x[i][j],
+                        mul(x[i][k], b.x[k][j])
+                    );
+                }
+            }
+        }
+
+        return c;
+    }
+
+    friend Matrix operator ^ (const Matrix &a, const int &b)
+    {
+        if (b == 1)
+            return a;
+
+        Matrix c = (a ^ (b / 2));
+
+        if (b & 1)
+            return c * c * a;
+
+        return c * c;
+    }
+};
+struct Hash
+{
+    const int base = 311;
+    const int mod1 = 1000000007;
+    const int mod2 = 1000000009;
+    vector<int> pw1, pw2, h1, h2;
+    inline int sub(int a, int b, int mod)
+    {
+        a %= mod;
+        b %= mod;
+        a -= b;
+        if (a < 0)
+            a += mod;
+        return a;
+    }
+    inline int mul(int a, int b, int mod)
+    {
+        return (a % mod) * (b % mod) % mod;
+    }
+    Hash()
+    {
+        pw1.assign(n + 1, 0);
+        pw2.assign(n + 1, 0);
+        h1.assign(n + 1, 0);
+        h2.assign(n + 1, 0);
+        pw1[0] = pw2[0] = 1;
+        stack<int> st;
+        for (int i = 1; i <= n; i++)
+        {
+            pw1[i] = pw1[i - 1] * base % mod1;
+            pw2[i] = pw2[i - 1] * base % mod2;
+            if (st.size() && st.top() + a[i] == k)
+            {
+                h1[i] = h1[i - 1];
+                h2[i] = h2[i - 1];
+                h1[i] = mul(sub(h1[i], st.top(), mod1), exp(base, mod1 - 2, mod1), mod1);
+                h2[i] = mul(sub(h2[i], st.top(), mod2), exp(base, mod2 - 2, mod2), mod2);
+                st.pop();
+            }
+            else
+            {
+                st.push(a[i]);
+                h1[i] = (h1[i - 1] * base + a[i]) % mod1;
+                h2[i] = (h2[i - 1] * base + a[i]) % mod2;
+            }
+        }
+    }
+    ii get(int l, int r)
+    {
+        int x1 = (h1[r] - h1[l - 1] * pw1[r - l + 1]) % mod1;
+        if (x1 < 0)
+            x1 += mod1;
+        int x2 = (h2[r] - h2[l - 1] * pw2[r - l + 1]) % mod2;
+        if (x2 < 0)
+            x2 += mod2;
+        return {x1, x2};
+    }
+};
+const long long INF = 1e18;
+
+void floydWarshall(int n, vector<vector<long long>> &dist) {
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            if (dist[i][k] == INF) continue;
+            for (int j = 1; j <= n; j++) {
+                if (dist[k][j] == INF) continue;
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+            }
+        }
+    }
+}
+const int test = 100;
+
+std::mt19937_64 rd(std::chrono::steady_clock::now().time_since_epoch().count());
+
+int Rand(int l, int r)
+{
+    if (l > r)
+    {
+        std::swap(l, r);
+    }
+    std::uniform_int_distribution<int> dist(l, r);
+    return dist(rd);
+}
+
+__Thien_dep_trai__
+{
+    std::ios_base::sync_with_stdio(0);
+    std::cin.tie(0);
+    std::cout.tie(0);
+
+    srand(time(0));
+    for (int iTest = 1; iTest <= test; iTest++)
+    {
+        std::ofstream inp(task ".inp");
+
+        inp.close();
+
+        system(task ".exe");
+        system(task "_trau.exe");
+        if (system("fc " task ".out " task ".ans") != 0)
+        {
+            std::cout << "TEST " << iTest << ": WRONG ANSWER!\n";
+            return 0;
+        }
+        std::cout << "TEST " << iTest << ": ACCEPTED!\n";
+    }
+
+    std::cerr << "\nTime elapsed: " << TIME << " s.\n";
+
+    return 0;
+}struct Trie
+{
+    struct Node
+    {
+        int child[26];
+        int cntEnd;
+        int cntPass;
+
+        Node()
+        {
+            memset(child, -1, sizeof(child));
+            cntEnd = cntPass = 0;
+        }
+    };
+
+    vector<Node> trie;
+
+    Trie()
+    {
+        trie.emplace_back(); // root
+    }
+
+    void insert(string s)
+    {
+        int u = 0;
+        trie[u].cntPass++;
+        for (char c : s)
+        {
+            int x = c - 'a';
+            if (trie[u].child[x] == -1)
+            {
+                trie[u].child[x] = trie.size();
+                trie.emplace_back();
+            }
+            u = trie[u].child[x];
+            trie[u].cntPass++;
+        }
+        trie[u].cntEnd++;
+    }
+
+    bool find(string s)
+    {
+        int u = 0;
+        for (char c : s)
+        {
+            int x = c - 'a';
+            if (trie[u].child[x] == -1)
+                return false;
+            u = trie[u].child[x];
+        }
+        return trie[u].cntEnd > 0;
+    }
+
+    bool erase(string s)
+    {
+        if (!find(s))
+            return false;
+
+        int u = 0;
+        trie[u].cntPass--;
+        for (char c : s)
+        {
+            int x = c - 'a';
+            u = trie[u].child[x];
+            trie[u].cntPass--;
+        }
+        trie[u].cntEnd--;
+        return true;
+    }
+
+    int countWord(string s)
+    {
+        int u = 0;
+        for (char c : s)
+        {
+            int x = c - 'a';
+            if (trie[u].child[x] == -1)
+                return 0;
+            u = trie[u].child[x];
+        }
+        return trie[u].cntEnd;
+    }
+
+    int countPrefix(string s)
+    {
+        int u = 0;
+        for (char c : s)
+        {
+            int x = c - 'a';
+            if (trie[u].child[x] == -1)
+                return 0;
+            u = trie[u].child[x];
+        }
+        return trie[u].cntPass;
+    }
+};
+const int MAXN = 200005;
+const int LOGN = 19;
+
+struct RMQ {
+    int st[MAXN][LOGN];
+    int lg[MAXN];
+
+    void init(int n, int a[]) {
+        lg[1] = 0;
+        for (int i = 2; i <= n; i++) lg[i] = lg[i / 2] + 1;
+
+        for (int i = 1; i <= n; i++) st[i][0] = a[i];
+
+        for (int j = 1; j <= LOGN; j++) {
+            for (int i = 1; i + (1 << j) - 1 <= n; i++) {
+                st[i][j] = min(st[i][j - 1], st[i + (1 << (j - 1))][j - 1]);
+            }
+        }
+    }
+
+    int query(int l, int r) {
+        int j = lg[r - l + 1];
+        return min(st[l][j], st[r - (1 << j) + 1][j]);
+    }
+} rmq;
