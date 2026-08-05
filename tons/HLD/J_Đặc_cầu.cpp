@@ -34,9 +34,42 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-int n, a[N];
+int n, m, q, u[N], v[N];
 int chainID[N], headchain[N], pos[N], t[N], sz[N], par[N], curchain = 1, timer = 1, depth[N], heavy[N];
+int cnt = 0, tplt = 0, d[N], low[N], scc[N], sz_scc[N];
+stack<int> st;
 vector<int> adj[N];
+vector<ii> g[N];
+void tarjan(int u, int edge)
+{
+    d[u] = low[u] = ++cnt;
+    st.push(u);
+    for (auto [v, id] : g[u])
+    {
+        if (id != edge)
+        {
+            if (d[v] != 0)
+                low[u] = min(low[u], d[v]);
+            else
+            {
+                tarjan(v, id);
+                low[u] = min(low[u], low[v]);
+            }
+        }
+    }
+    if (low[u] == d[u])
+    {
+        int v;
+        ++tplt;
+        do
+        {
+            v = st.top();
+            st.pop();
+            scc[v] = tplt;
+            sz_scc[tplt]++;
+        } while (u != v);
+    }
+}
 void dfs(int u, int p)
 {
     par[u] = p;
@@ -75,52 +108,119 @@ void HLD(int u, int p)
         }
     }
 }
-int tree[4 * N];
-void update(int node, int l, int r, int pos, int val)
+int tree[4 * N], lazy[4 * N];
+void down(int id, int l, int r)
 {
-    if (pos < l || pos > r)
-        return;
-    if (l == r)
+
+    if (lazy[id] != 0)
     {
-        tree[node] = val;
+        int mid = (l + r) / 2;
+        tree[2 * id] += lazy[id] * (mid - l + 1);
+        tree[2 * id + 1] += lazy[id] * (r - mid);
+        lazy[2 * id] += lazy[id];
+        lazy[2 * id + 1] += lazy[id];
+        lazy[id] = 0;
+    }
+}
+void update(int node, int l, int r, int u, int v, int val)
+{
+    down(node, l, r);
+    if (u > r || v < l)
+        return;
+    if (u <= l && r <= v)
+    {
+        tree[node] += val * (r - l + 1);
+        lazy[node] += val;
         return;
     }
     int mid = (l + r) / 2;
-    update(2 * node, l, mid, pos, val);
-    update(2 * node + 1, mid + 1, r, pos, val);
-    tree[node] = min(tree[2 * node], tree[2 * node + 1]);
+    update(2 * node, l, mid, u, v, val);
+    update(2 * node + 1, mid + 1, r, u, v, val);
+    tree[node] = tree[2 * node] + tree[2 * node + 1];
 }
 int query(int node, int l, int r, int x, int y)
 {
+    down(node, l, r);
     if (x > r || y < l)
-        return -1e9;
+        return 0;
     if (x <= l && r <= y)
         return tree[node];
     int mid = (l + r) / 2;
-    return min(query(2 * node, l, mid, x, y), query(2 * node + 1, mid + 1, r, x, y));
+    return query(2 * node, l, mid, x, y) + query(2 * node + 1, mid + 1, r, x, y);
 }
-int LCA(int u, int v)
+int hget(int x, int y)
 {
-    while (chainID[u] != chainID[v])
+    int ans = 0;
+    for (; chainID[x] != chainID[y]; y = par[headchain[chainID[y]]])
     {
-        if (chainID[u] > chainID[v])
-            u = par[headchain[chainID[u]]];
-        else
-            v = par[headchain[chainID[v]]];
+        if (depth[headchain[chainID[x]]] > depth[headchain[chainID[y]]])
+            swap(x, y);
+        ans += query(1, 1, tplt, pos[headchain[chainID[y]]], pos[y]);
     }
-    if (depth[u] < depth[v])
-        return u;
-    return v;
+    if (depth[x] > depth[y])
+        swap(x, y);
+    if (pos[x] + 1 <= pos[y])
+        ans += query(1, 1, tplt, pos[x] + 1, pos[y]);
+    return ans;
+}
+void hupdate(int x, int y, int val)
+{
+    for (; chainID[x] != chainID[y]; y = par[headchain[chainID[y]]])
+    {
+        if (depth[headchain[chainID[x]]] > depth[headchain[chainID[y]]])
+            swap(x, y);
+        update(1, 1, tplt, pos[headchain[chainID[y]]], pos[y], val);
+    }
+    if (depth[x] > depth[y])
+        swap(x, y);
+    if (pos[x] + 1 <= pos[y])
+        update(1, 1, tplt, pos[x] + 1, pos[y], val);
+    return;
 }
 void solve()
 {
-
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> u[i] >> v[i];
+        g[u[i]].push_back({v[i], i});
+        g[v[i]].push_back({u[i], i});
+    }
+    tarjan(1, 0);
+    update(1, 1, tplt, 1, tplt, 1);
+    for (int i = 1; i <= m; i++)
+    {
+        if (scc[u[i]] != scc[v[i]])
+        {
+            adj[scc[u[i]]].push_back(scc[v[i]]);
+            adj[scc[v[i]]].push_back(scc[u[i]]);
+        }
+    }
+    for (int i = 1; i <= n; i++)
+    {
+        sort(adj[i].begin(), adj[i].end());
+        adj[i].erase(unique(adj[i].begin(), adj[i].end()), adj[i].end());
+    }
+    depth[scc[1]] = 0;
+    dfs(scc[1], 0);
+    HLD(scc[1], 0);
+    while (q--)
+    {
+        int a, b, c, d;
+        cin >> a >> b >> c >> d;
+        a = scc[a];
+        b = scc[b];
+        c = scc[c];
+        d = scc[d];
+        hupdate(a, b, -1);
+        cout << hget(c, d) << endl;
+        hupdate(a, b, 1);
+    }
 }
 main()
 {
     skibidi;
     file("");
-    cin >> n;
+    cin >> n >> m >> q;
     solve();
 }
 /*  I am the bone of my sword
