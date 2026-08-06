@@ -1674,3 +1674,787 @@ struct RMQ {
         return min(st[l][j], st[r - (1 << j) + 1][j]);
     }
 } rmq;
+struct Trie
+{
+    struct Node
+    {
+        int child[26];
+        int cntEnd;
+        int cntPass;
+
+        Node()
+        {
+            memset(child, -1, sizeof(child));
+            cntEnd = cntPass = 0;
+        }
+    };
+
+    vector<Node> trie;
+
+    Trie()
+    {
+        trie.emplace_back(); // root
+    }
+
+    void insert(string s)
+    {
+        int u = 0;
+        trie[u].cntPass++;
+        for (char c : s)
+        {
+            int x = c - 'a';
+            if (trie[u].child[x] == -1)
+            {
+                trie[u].child[x] = trie.size();
+                trie.emplace_back();
+            }
+            u = trie[u].child[x];
+            trie[u].cntPass++;
+        }
+        trie[u].cntEnd++;
+    }
+
+    bool find(string s)
+    {
+        int u = 0;
+        for (char c : s)
+        {
+            int x = c - 'a';
+            if (trie[u].child[x] == -1)
+                return false;
+            u = trie[u].child[x];
+        }
+        return trie[u].cntEnd > 0;
+    }
+
+    bool erase(string s)
+    {
+        if (!find(s))
+            return false;
+
+        int u = 0;
+        trie[u].cntPass--;
+        for (char c : s)
+        {
+            int x = c - 'a';
+            u = trie[u].child[x];
+            trie[u].cntPass--;
+        }
+        trie[u].cntEnd--;
+        return true;
+    }
+
+    int countWord(string s)
+    {
+        int u = 0;
+        for (char c : s)
+        {
+            int x = c - 'a';
+            if (trie[u].child[x] == -1)
+                return 0;
+            u = trie[u].child[x];
+        }
+        return trie[u].cntEnd;
+    }
+
+    int countPrefix(string s)
+    {
+        int u = 0;
+        for (char c : s)
+        {
+            int x = c - 'a';
+            if (trie[u].child[x] == -1)
+                return 0;
+            u = trie[u].child[x];
+        }
+        return trie[u].cntPass;
+    }
+};
+const int test = 100;
+
+std::mt19937_64 rd(std::chrono::steady_clock::now().time_since_epoch().count());
+
+int Rand(int l, int r)
+{
+    if (l > r)
+    {
+        std::swap(l, r);
+    }
+    std::uniform_int_distribution<int> dist(l, r);
+    return dist(rd);
+}
+
+__Thien_dep_trai__
+{
+    std::ios_base::sync_with_stdio(0);
+    std::cin.tie(0);
+    std::cout.tie(0);
+
+    srand(time(0));
+    for (int iTest = 1; iTest <= test; iTest++)
+    {
+        std::ofstream inp(task ".inp");
+
+        inp.close();
+
+        system(task ".exe");
+        system(task "_trau.exe");
+        if (system("fc " task ".out " task ".ans") != 0)
+        {
+            std::cout << "TEST " << iTest << ": WRONG ANSWER!\n";
+            return 0;
+        }
+        std::cout << "TEST " << iTest << ": ACCEPTED!\n";
+    }
+
+    std::cerr << "\nTime elapsed: " << TIME << " s.\n";
+
+    return 0;
+}
+const long long INF = 1e18;
+
+void floydWarshall(int n, vector<vector<long long>> &dist) {
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            if (dist[i][k] == INF) continue;
+            for (int j = 1; j <= n; j++) {
+                if (dist[k][j] == INF) continue;
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+            }
+        }
+    }
+}
+struct SegTreeBeats {
+    static const long long INF = (1LL << 60);
+
+    struct Node {
+        long long sum;
+        long long mx, mx2;
+        int cnt;
+    };
+
+    int n;
+    vector<Node> st;
+
+    SegTreeBeats(int _n) {
+        n = _n;
+        st.assign(4 * n + 5, {0, -INF, -INF, 0});
+    }
+
+    Node merge(Node a, Node b) {
+        Node res;
+        res.sum = a.sum + b.sum;
+
+        if (a.mx == b.mx) {
+            res.mx = a.mx;
+            res.cnt = a.cnt + b.cnt;
+            res.mx2 = max(a.mx2, b.mx2);
+        }
+        else if (a.mx > b.mx) {
+            res.mx = a.mx;
+            res.cnt = a.cnt;
+            res.mx2 = max(a.mx2, b.mx);
+        }
+        else {
+            res.mx = b.mx;
+            res.cnt = b.cnt;
+            res.mx2 = max(a.mx, b.mx2);
+        }
+
+        return res;
+    }
+
+    void build(int id, int l, int r, vector<long long> &a) {
+        if (l == r) {
+            st[id] = {a[l], a[l], -INF, 1};
+            return;
+        }
+
+        int mid = (l + r) >> 1;
+        build(id << 1, l, mid, a);
+        build(id << 1 | 1, mid + 1, r, a);
+
+        st[id] = merge(st[id << 1], st[id << 1 | 1]);
+    }
+
+    void apply(int id, long long x) {
+        if (st[id].mx <= x) return;
+
+        st[id].sum -= 1LL * (st[id].mx - x) * st[id].cnt;
+        st[id].mx = x;
+    }
+
+    void push(int id) {
+        apply(id << 1, st[id].mx);
+        apply(id << 1 | 1, st[id].mx);
+    }
+
+    void chmin(int id, int l, int r, int u, int v, long long x) {
+        if (r < u || v < l || st[id].mx <= x)
+            return;
+
+        if (u <= l && r <= v && st[id].mx2 < x) {
+            apply(id, x);
+            return;
+        }
+
+        push(id);
+
+        int mid = (l + r) >> 1;
+        chmin(id << 1, l, mid, u, v, x);
+        chmin(id << 1 | 1, mid + 1, r, u, v, x);
+
+        st[id] = merge(st[id << 1], st[id << 1 | 1]);
+    }
+
+    long long query(int id, int l, int r, int u, int v) {
+        if (r < u || v < l)
+            return 0;
+
+        if (u <= l && r <= v)
+            return st[id].sum;
+
+        push(id);
+
+        int mid = (l + r) >> 1;
+        return query(id << 1, l, mid, u, v)
+             + query(id << 1 | 1, mid + 1, r, u, v);
+    }
+
+    // Wrapper
+    void build(vector<long long> &a) {
+        build(1, 1, n, a);
+    }
+
+    void chmin(int l, int r, long long x) {
+        chmin(1, 1, n, l, r, x);
+    }
+
+    long long query(int l, int r) {
+        return query(1, 1, n, l, r);
+    }
+};
+struct Hash
+{
+    const int base = 311;
+    const int mod1 = 1000000007;
+    const int mod2 = 1000000009;
+    vector<int> pw1, pw2, h1, h2;
+    inline int sub(int a, int b, int mod)
+    {
+        a %= mod;
+        b %= mod;
+        a -= b;
+        if (a < 0)
+            a += mod;
+        return a;
+    }
+    inline int mul(int a, int b, int mod)
+    {
+        return (a % mod) * (b % mod) % mod;
+    }
+    Hash()
+    {
+        pw1.assign(n + 1, 0);
+        pw2.assign(n + 1, 0);
+        h1.assign(n + 1, 0);
+        h2.assign(n + 1, 0);
+        pw1[0] = pw2[0] = 1;
+        stack<int> st;
+        for (int i = 1; i <= n; i++)
+        {
+            pw1[i] = pw1[i - 1] * base % mod1;
+            pw2[i] = pw2[i - 1] * base % mod2;
+            if (st.size() && st.top() + a[i] == k)
+            {
+                h1[i] = h1[i - 1];
+                h2[i] = h2[i - 1];
+                h1[i] = mul(sub(h1[i], st.top(), mod1), exp(base, mod1 - 2, mod1), mod1);
+                h2[i] = mul(sub(h2[i], st.top(), mod2), exp(base, mod2 - 2, mod2), mod2);
+                st.pop();
+            }
+            else
+            {
+                st.push(a[i]);
+                h1[i] = (h1[i - 1] * base + a[i]) % mod1;
+                h2[i] = (h2[i - 1] * base + a[i]) % mod2;
+            }
+        }
+    }
+    ii get(int l, int r)
+    {
+        int x1 = (h1[r] - h1[l - 1] * pw1[r - l + 1]) % mod1;
+        if (x1 < 0)
+            x1 += mod1;
+        int x2 = (h2[r] - h2[l - 1] * pw2[r - l + 1]) % mod2;
+        if (x2 < 0)
+            x2 += mod2;
+        return {x1, x2};
+    }
+};
+int fac[N], revfac[N];
+
+int power(int a, int b)
+{
+    int res = 1;
+    while (b)
+    {
+        if (b & 1)
+            res = res * a % MOD;
+        a = a * a % MOD;
+        b >>= 1;
+    }
+    return res;
+}
+
+void init(int lim)
+{
+    fac[0] = 1;
+    for (int i = 1; i <= lim; i++)
+        fac[i] = fac[i - 1] * i % MOD;
+
+    revfac[lim] = power(fac[lim], MOD - 2);
+    for (int i = lim - 1; i >= 0; i--)
+        revfac[i] = revfac[i + 1] * (i + 1) % MOD;
+}
+
+int C(int n, int k)
+{
+    if (k < 0 || k > n)
+        return 0;
+    return fac[n] * revfac[k] % MOD * revfac[n - k] % MOD;
+}
+int C[N][N];
+
+void init()
+{
+    C[0][0] = 1;
+    for (int i = 1; i < N; i++)
+    {
+        C[i][0] = 1;
+        C[i][i] = 1;
+        for (int j = 1; j < i; j++)
+            C[i][j] = (C[i - 1][j - 1] + C[i - 1][j]) % MOD;
+    }
+}
+struct Matrix {
+    std::vector<std::vector<long long>> a;
+    int r, c;
+    
+    Matrix(int r, int c, bool is_identity = false) : r(r), c(c) {
+        a.assign(r, std::vector<long long>(c, 0));
+        if (is_identity) {
+            for (int i = 0; i < std::min(r, c); i++) a[i][i] = 1;
+        }
+    }
+
+    Matrix operator*(const Matrix& other) const {
+        Matrix res(r, other.c);
+        for (int i = 0; i < r; i++) {
+            for (int k = 0; k < c; k++) {
+                if (a[i][k] == 0) continue;
+                for (int j = 0; j < other.c; j++) {
+                    res.a[i][j] = (res.a[i][j] + a[i][k] * other.a[k][j]) % mod;
+                }
+            }
+        }
+        return res;
+    }
+
+    Matrix power(long long p) {
+        Matrix res(r, c, true);
+        Matrix base = *this;
+        while (p > 0) {
+            if (p & 1) res = res * base;
+            base = base * base;
+            p >>= 1;
+        }
+        return res;
+    }
+};
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int l = 1, r = 100;
+
+    while (l <= r) {
+        int mid = (l + r) / 2;
+
+        cout << "? " << mid << endl;
+        cout.flush();          // hoặc fflush(stdout);
+
+        char c;
+        cin >> c;
+
+        if (c == '=')
+            break;
+        else if (c == '<')
+            r = mid - 1;
+        else
+            l = mid + 1;
+    }
+
+    cout << "! " << l << endl;
+    cout.flush();
+}
+struct BigInt
+{
+    static const int base = 1000000000;
+    static const int base_digits = 9;
+    vector<int> a;
+    int sign;
+
+    BigInt() : sign(1) {}
+    BigInt(long long v) { *this = v; }
+    BigInt(const string &s) { read(s); }
+
+    void operator=(long long v)
+    {
+        sign = 1;
+        a.clear();
+        if (v < 0)
+            sign = -1, v = -v;
+        while (v > 0)
+        {
+            a.push_back(v % base);
+            v /= base;
+        }
+    }
+
+    void read(const string &s)
+    {
+        sign = 1;
+        a.clear();
+        int pos = 0;
+        while (pos < (int)s.size() && (s[pos] == '-' || s[pos] == '+'))
+        {
+            if (s[pos] == '-')
+                sign = -sign;
+            pos++;
+        }
+        for (int i = (int)s.size() - 1; i >= pos; i -= base_digits)
+        {
+            int x = 0;
+            for (int j = max(pos, i - base_digits + 1); j <= i; j++)
+                x = x * 10 + (s[j] - '0');
+            a.push_back(x);
+        }
+        trim();
+    }
+
+    void trim()
+    {
+        while (!a.empty() && a.back() == 0)
+            a.pop_back();
+        if (a.empty())
+            sign = 1;
+    }
+
+    bool isZero() const { return a.empty(); }
+
+    friend ostream &operator<<(ostream &out, const BigInt &v)
+    {
+        if (v.sign == -1 && !v.isZero())
+            out << '-';
+        if (v.a.empty())
+            out << 0;
+        else
+        {
+            out << v.a.back();
+            for (int i = (int)v.a.size() - 2; i >= 0; i--)
+                out << setw(base_digits) << setfill('0') << v.a[i];
+        }
+        return out;
+    }
+
+    friend istream &operator>>(istream &in, BigInt &v)
+    {
+        string s;
+        in >> s;
+        v.read(s);
+        return in;
+    }
+
+    static int absCmp(const BigInt &a, const BigInt &b)
+    {
+        if (a.a.size() != b.a.size())
+            return a.a.size() < b.a.size() ? -1 : 1;
+        for (int i = (int)a.a.size() - 1; i >= 0; i--)
+            if (a.a[i] != b.a[i])
+                return a.a[i] < b.a[i] ? -1 : 1;
+        return 0;
+    }
+
+    bool operator<(const BigInt &v) const
+    {
+        if (sign != v.sign)
+            return sign < v.sign;
+        int cmp = absCmp(*this, v);
+        return sign == 1 ? (cmp < 0) : (cmp > 0);
+    }
+    bool operator>(const BigInt &v) const { return v < *this; }
+    bool operator<=(const BigInt &v) const { return !(v < *this); }
+    bool operator>=(const BigInt &v) const { return !(*this < v); }
+    bool operator==(const BigInt &v) const { return sign == v.sign && a == v.a; }
+    bool operator!=(const BigInt &v) const { return !(*this == v); }
+
+    BigInt operator-() const
+    {
+        BigInt res = *this;
+        if (!res.isZero())
+            res.sign = -sign;
+        return res;
+    }
+
+    BigInt operator+(const BigInt &v) const
+    {
+        if (sign == v.sign)
+        {
+            BigInt res = v;
+            int carry = 0;
+            for (size_t i = 0; i < max(a.size(), v.a.size()) || carry; i++)
+            {
+                if (i == res.a.size())
+                    res.a.push_back(0);
+                long long sum = res.a[i] + carry + (i < a.size() ? a[i] : 0LL);
+                carry = sum >= base;
+                if (carry)
+                    sum -= base;
+                res.a[i] = (int)sum;
+            }
+            return res;
+        }
+        return *this - (-v);
+    }
+
+    BigInt operator-(const BigInt &v) const
+    {
+        if (sign == v.sign)
+        {
+            if (absCmp(*this, v) >= 0)
+            {
+                BigInt res = *this;
+                int carry = 0;
+                for (size_t i = 0; i < v.a.size() || carry; i++)
+                {
+                    long long sub = res.a[i] - (i < v.a.size() ? v.a[i] : 0) - carry;
+                    carry = sub < 0;
+                    if (carry)
+                        sub += base;
+                    res.a[i] = (int)sub;
+                }
+                res.trim();
+                return res;
+            }
+            return -(v - *this);
+        }
+        return *this + (-v);
+    }
+
+    BigInt operator*(const BigInt &v) const
+    {
+        BigInt res;
+        res.sign = sign * v.sign;
+        res.a.assign(a.size() + v.a.size(), 0);
+        for (size_t i = 0; i < a.size(); i++)
+        {
+            long long carry = 0;
+            for (size_t j = 0; j < v.a.size() || carry; j++)
+            {
+                long long cur = res.a[i + j] + (long long)a[i] * (j < v.a.size() ? v.a[j] : 0) + carry;
+                res.a[i + j] = int(cur % base);
+                carry = cur / base;
+            }
+        }
+        res.trim();
+        return res;
+    }
+
+    BigInt operator/(int v) const
+    {
+        BigInt res = *this;
+        res.sign *= (v < 0 ? -1 : 1);
+        v = abs(v);
+        long long rem = 0;
+        for (int i = (int)res.a.size() - 1; i >= 0; i--)
+        {
+            long long cur = res.a[i] + rem * base;
+            res.a[i] = int(cur / v);
+            rem = cur % v;
+        }
+        res.trim();
+        return res;
+    }
+
+    int operator%(int v) const
+    {
+        long long m = 0;
+        for (int i = (int)a.size() - 1; i >= 0; i--)
+            m = (a[i] + m * base) % v;
+        return (int)(m * sign);
+    }
+};
+int chainID[N], headchain[N], pos[N], t[N], sz[N], par[N], curchain = 1, timer = 1, depth[N], heavy[N];
+vector<int> adj[N];
+void dfs(int u, int p)
+{
+    par[u] = p;
+    sz[u] = 1;
+    int mx = 0;
+    for (int v : adj[u])
+    {
+        if (v != p)
+        {
+            depth[v] = depth[u] + 1;
+            dfs(v, u);
+            if (sz[v] > sz[mx])
+                mx = v;
+            sz[u] += sz[v];
+        }
+    }
+    heavy[u] = mx;
+}
+void HLD(int u, int p)
+{
+    if (!headchain[curchain])
+        headchain[curchain] = u;
+    chainID[u] = curchain;
+    pos[u] = timer;
+    t[timer] = u;
+    timer++;
+    int bigC = heavy[u];
+    if (bigC)
+        HLD(bigC, u);
+    for (auto v : adj[u])
+    {
+        if (v != p && v != bigC)
+        {
+            curchain++;
+            HLD(v, u);
+        }
+    }
+}
+int tree[4 * N];
+void update(int node, int l, int r, int pos, int val)
+{
+    if (pos < l || pos > r)
+        return;
+    if (l == r)
+    {
+        tree[node] = val;
+        return;
+    }
+    int mid = (l + r) / 2;
+    update(2 * node, l, mid, pos, val);
+    update(2 * node + 1, mid + 1, r, pos, val);
+    tree[node] = min(tree[2 * node], tree[2 * node + 1]);
+}
+int query(int node, int l, int r, int x, int y)
+{
+    if (x > r || y < l)
+        return -1e9;
+    if (x <= l && r <= y)
+        return tree[node];
+    int mid = (l + r) / 2;
+    return min(query(2 * node, l, mid, x, y), query(2 * node + 1, mid + 1, r, x, y));
+}
+int hget(int x, int y)
+{
+    int ans = 0;
+    for (; chainID[x] != chainID[y]; y = par[headchain[chainID[y]]])
+    {
+        if (depth[headchain[chainID[x]]] > depth[headchain[chainID[y]]])
+            swap(x, y);
+        ans += query(1, 1, n, pos[headchain[chainID[y]]], pos[y]);
+    }
+    if (depth[x] > depth[y])
+        swap(x, y);
+    if (pos[x] + 1 <= pos[y])
+        ans += query(1, 1, n, pos[x] + 1, pos[y]);
+    return ans;
+}
+struct PersistentSeg
+{
+    struct Node
+    {
+        int left, right, sum;
+        Node() {left = right = sum = 0;}
+        Node(int _sum) : left(0), right(0), sum(_sum) {};
+    } node[N * 25];
+    int numNode = 0, numVer = 0;
+    int version[N]; // root cua i
+    void merge(int id)
+    {
+        node[id].sum = node[node[id].left].sum + node[node[id].right].sum;
+    }
+
+    int build(int l, int r)
+    {
+        if (l == r)
+        {
+            node[++numNode] = Node(a[l]);
+            return numNode;
+        }
+        int mid = (l + r) / 2;
+        int id = ++numNode;
+        node[id].left = build(l, mid);
+        node[id].right = build(mid + 1, r);
+        merge(id);
+        return id;
+    }
+
+    int update(int l, int r, int pos, int val, int oldver)
+    {
+        if (l == r)
+        {
+            node[++numNode] = Node(val);
+            return numNode;
+        }
+        int mid = (l + r) / 2;
+        int id = ++numNode;
+        if (pos <= mid)
+        {
+            node[id].left = update(l, mid, pos, val, node[oldver].left);
+            node[id].right = node[oldver].right;
+        }
+        else
+        {
+            node[id].left = node[oldver].left;
+            node[id].right = update(mid + 1, r, pos, val, node[oldver].right);
+        }
+        merge(id);
+        return id;
+    }
+
+    int get(int ver, int l, int r, int u, int v)
+    {
+        if (l > v || r < u)
+            return 0;
+        if (u <= l && r <= v)
+            return node[ver].sum;
+        int mid = (l + r) / 2;
+        return get(node[ver].left, l, mid, u, v) + get(node[ver].right, mid + 1, r, u, v);
+    }
+
+    void buildTree()
+    {
+        numVer = 1;
+        version[1] = build(1, n);
+    }
+
+    void update(int ver, int pos, int val)
+    {
+        version[ver] = update(1, n, pos, val, version[ver]);
+    }
+
+    void copy(int ver)
+    {
+        version[++numVer] = version[ver];
+    }
+
+    int getsum(int ver, int l, int r)
+    {
+        return get(version[ver], 1, n, l, r);
+    }
+} seg;
