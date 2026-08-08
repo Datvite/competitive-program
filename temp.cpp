@@ -2458,3 +2458,419 @@ struct PersistentSeg
         return get(version[ver], 1, n, l, r);
     }
 } seg;
+vector<int> buildLPS(const string& P) {
+    int m = P.length();
+    vector<int> lps(m, 0);
+    int len = 0; // Độ dài tiền tố trùng với hậu tố dài nhất hiện tại
+    int i = 1;
+
+    while (i < m) {
+        if (P[i] == P[len]) {
+            len++;
+            lps[i] = len;
+            i++;
+        } else {
+            if (len != 0) {
+                len = lps[len - 1];
+            } else {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+    return lps;
+}
+
+// Hàm tìm kiếm KMP: Trả về danh sách các chỉ số xuất hiện (0-indexed)
+vector<int> KMP(const string& T, const string& P) {
+    int n = T.length();
+    int m = P.length();
+    vector<int> matches;
+
+    if (m == 0 || n < m) return matches;
+
+    vector<int> lps = buildLPS(P);
+    int i = 0; // Chỉ số cho T
+    int j = 0; // Chỉ số cho P
+
+    while (i < n) {
+        if (P[j] == T[i]) {
+            i++;
+            j++;
+        }
+
+        if (j == m) {
+            matches.push_back(i - j); // Tìm thấy P tại vị trí i - j
+            j = lps[j - 1]; // Tiếp tục tìm các khớp phía sau
+        } else if (i < n && P[j] != T[i]) {
+            if (j != 0) {
+                j = lps[j - 1];
+            } else {
+                i++;
+            }
+        }
+    }
+    return matches;
+}
+#include <iostream>
+#include <vector>
+#include <string>
+#include <queue>
+
+using namespace std;
+
+const int ALPHABET_SIZE = 26;
+
+struct Match {
+    int start_pos;  // Vị trí bắt đầu (0-indexed)
+    int pattern_id; // ID của chuỗi mẫu
+};
+
+class AhoCorasick {
+private:
+    struct Node {
+        int next[ALPHABET_SIZE];
+        int fail = 0;
+        vector<int> output; // Danh sách ID các mẫu kết thúc tại node này
+
+        Node() {
+            fill(next, next + ALPHABET_SIZE, -1);
+        }
+    };
+
+    vector<Node> trie;
+    vector<int> pattern_lens; // Lưu độ dài từng mẫu để tính start_pos
+
+public:
+    AhoCorasick() {
+        trie.emplace_back(); // Root = 0
+    }
+
+    // 1. Thêm mẫu vào Trie
+    void insert(const string& p, int pattern_id) {
+        int u = 0;
+        for (char c : p) {
+            int idx = c - 'a'; // Tùy chỉnh theo bộ ký tự (ví dụ: c - 'A', c - '0')
+            if (trie[u].next[idx] == -1) {
+                trie[u].next[idx] = trie.size();
+                trie.emplace_back();
+            }
+            u = trie[u].next[idx];
+        }
+        trie[u].output.push_back(pattern_id);
+
+        if (pattern_id >= (int)pattern_lens.size()) {
+            pattern_lens.resize(pattern_id + 1);
+        }
+        pattern_lens[pattern_id] = p.length();
+    }
+
+    // 2. Xây dựng Fail Links bằng BFS (Trie Graph)
+    void build() {
+        queue<int> q;
+
+        for (int c = 0; c < ALPHABET_SIZE; ++c) {
+            if (trie[0].next[c] != -1) {
+                q.push(trie[0].next[c]);
+            } else {
+                trie[0].next[c] = 0;
+            }
+        }
+
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+
+            // Kế thừa output từ node fail
+            for (int id : trie[trie[u].fail].output) {
+                trie[u].output.push_back(id);
+            }
+
+            for (int c = 0; c < ALPHABET_SIZE; ++c) {
+                int v = trie[u].next[c];
+                if (v != -1) {
+                    trie[v].fail = trie[trie[u].fail].next[c];
+                    q.push(v);
+                } else {
+                    trie[u].next[c] = trie[trie[u].fail].next[c];
+                }
+            }
+        }
+    }
+
+    // DẠNG 1: Trả về danh sách tất cả lần xuất hiện {start_pos, pattern_id}
+    vector<Match> find_all(const string& T) {
+        vector<Match> matches;
+        int u = 0;
+
+        for (int i = 0; i < (int)T.length(); ++i) {
+            int idx = T[i] - 'a';
+            u = trie[u].next[idx];
+
+            for (int pattern_id : trie[u].output) {
+                int len = pattern_lens[pattern_id];
+                int start_pos = i - len + 1; // Quy về chỉ số bắt đầu 0-indexed
+                matches.push_back({start_pos, pattern_id});
+            }
+        }
+        return matches;
+    }
+
+    // DẠNG 2: Trả về mảng đếm tần suất xuất hiện của từng pattern_id
+    vector<int> count_all(const string& T, int num_patterns) {
+        vector<int> cnt(num_patterns, 0);
+        int u = 0;
+
+        for (int i = 0; i < (int)T.length(); ++i) {
+            int idx = T[i] - 'a';
+            u = trie[u].next[idx];
+
+            for (int pattern_id : trie[u].output) {
+                cnt[pattern_id]++;
+            }
+        }
+        return cnt;
+    }
+};
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    AhoCorasick ac;
+    vector<string> patterns = {"he", "she", "his", "hers"};
+    int num_patterns = patterns.size();
+
+    for (int i = 0; i < num_patterns; ++i) {
+        ac.insert(patterns[i], i);
+    }
+    ac.build();
+
+    string text = "ahishers";
+
+    // --- TEST DẠNG 1: Tìm vị trí ---
+    cout << "=== DANG 1: TAT CA MATCHES (start_pos, pattern) ===\n";
+    vector<Match> matches = ac.find_all(text);
+    for (const auto& m : matches) {
+        cout << "Pattern '" << patterns[m.pattern_id] 
+             << "' (ID " << m.pattern_id << ")"
+             << " bat dau tai chi so: " << m.start_pos << "\n";
+    }
+
+    // --- TEST DẠNG 2: Đếm số lần xuất hiện ---
+    cout << "\n=== DANG 2: DEM TAN SUAT ===\n";
+    vector<int> cnt = ac.count_all(text, num_patterns);
+    for (int i = 0; i < num_patterns; ++i) {
+        cout << "Pattern '" << patterns[i] << "': " << cnt[i] << " lan\n";
+    }
+
+    return 0;
+}
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+const int N = 200005;
+const int MAXBITS = 29; // Xử lý các số < 2^30 (~10^9)
+
+struct PersistentTrie
+{
+    struct Node
+    {
+        int child[2];
+        int count; // Số lượng số đi qua node này
+        Node()
+        {
+            child[0] = child[1] = 0;
+            count = 0;
+        }
+    } node[N * 32]; // Mỗi phép insert tốn khoảng (MAXBITS + 2) node
+
+    int numNode = 0, numVer = 0;
+    int version[N]; // Root của phiên bản i
+
+    // Tạo phiên bản mới bằng cách thêm giá trị val vào phiên bản oldver
+    int insert(int val, int oldver)
+    {
+        int id = ++numNode;
+        node[id] = node[oldver]; // Copy dữ liệu từ node phiên bản cũ
+        node[id].count++;        // Tăng tần suất số đi qua
+
+        int cur = id;
+        int old = oldver;
+
+        for (int i = MAXBITS; i >= 0; --i)
+        {
+            int bit = (val >> i) & 1;
+
+            // Tạo node mới cho nhánh bit hiện tại
+            node[cur].child[bit] = ++numNode;
+
+            // Node mới copy dữ liệu từ nhánh tương ứng của phiên bản cũ (nếu có)
+            if (old != 0)
+            {
+                node[node[cur].child[bit]] = node[node[old].child[bit]];
+            }
+
+            // Giữ nguyên nhánh bit còn lại (trỏ về phiên bản cũ)
+            if (old != 0)
+            {
+                node[cur].child[1 - bit] = node[old].child[1 - bit];
+            }
+
+            // Chuyển xuống mức tiếp theo
+            cur = node[cur].child[bit];
+            node[cur].count++;
+
+            if (old != 0)
+            {
+                old = node[old].child[bit];
+            }
+        }
+        return id;
+    }
+
+    // Khởi tạo gốc phiên bản 0
+    void init()
+    {
+        numNode = 0;
+        numVer = 0;
+        version[0] = 0; // version 0 là trie rỗng (node 0)
+    }
+
+    // Thêm một số val và tạo phiên bản mới
+    void add(int val, int prevVer)
+    {
+        version[++numVer] = insert(val, version[prevVer]);
+    }
+
+    // Tìm x trong khoảng phiên bản [verL, verR] sao cho (x ^ val) MAX
+    // Chú ý: Khoảng phiên bản [L, R] tương ứng truyền vào (version[L - 1], version[R])
+    int query_max_xor(int verL, int verR, int val)
+    {
+        int res = 0;
+        int u_L = version[verL];
+        int u_R = version[verR];
+
+        for (int i = MAXBITS; i >= 0; --i)
+        {
+            int bit = (val >> i) & 1;
+            int target_bit = 1 - bit; // Ưu tiên chọn bit ngược lại để XOR ra 1
+
+            // Tần suất của nhánh target_bit trong khoảng phiên bản [verL + 1, verR]
+            int count_in_range = node[node[u_R].child[target_bit]].count 
+                               - node[node[u_L].child[target_bit]].count;
+
+            if (count_in_range > 0)
+            {
+                res |= (1 << i);
+                u_L = node[u_L].child[target_bit];
+                u_R = node[u_R].child[target_bit];
+            }
+            else
+            {
+                u_L = node[u_L].child[bit];
+                u_R = node[u_R].child[bit];
+            }
+        }
+        return res;
+    }
+} trie;
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    trie.init();
+
+    vector<int> a = {2, 5, 1, 7, 4}; // Đánh số 1..n -> a[1]=2, a[2]=5, ...
+    int n = a.size();
+
+    // Thêm các phần tử theo thứ tự 1..n
+    for (int i = 0; i < n; ++i)
+    {
+        // Thêm a[i] vào phiên bản i (kế thừa từ phiên bản i)
+        trie.add(a[i], i); 
+    }
+
+    // Ví dụ: Tìm x trong đoạn a[2..4] (chứa {5, 1, 7}) sao cho (x ^ 3) MAX
+    int L = 2, R = 4;
+    int V = 3;
+
+    // Đoạn [L, R] tương ứng với hiệu giữa phiên bản R và phiên bản L - 1
+    int ans = trie.query_max_xor(L - 1, R, V);
+
+    cout << "Max XOR voi " << V << " trong doan [" << L << ", " << R << "] là: " << ans << "\n";
+
+    return 0;
+}
+struct line
+{
+    int a, b;
+    line(int a, int b) : a(a), b(b) {}
+    int cal(int x)
+    {
+        return a * x + b;
+    }
+    int slope()
+    {
+        return a;
+    }
+};
+struct liChao
+{
+    vector<line> st;
+    liChao() {}
+    liChao(int _n)
+    {
+        st.assign(_n * 4, line(0, 0));
+    }
+
+    void addline(int id, line li, int l, int r)
+    {
+        if (l == r)
+        {
+            if (li.cal(l) > st[id].cal(l))
+                st[id] = li;
+            return;
+        }
+        int mid = (l + r) >> 1;
+        if (li.cal(mid) > st[id].cal(mid))
+            swap(li, st[id]);
+        if (li.slope() < st[id].slope())
+            addline(id << 1, li, l, mid);
+        else
+            addline(id << 1 | 1, li, mid + 1, r);
+    }
+
+    void update(int id, line li, int l, int r, int u, int v)
+    {
+        if (l > v || r < u)
+            return;
+        if (u <= l && r <= v)
+        {
+            addline(id, li, l, r);
+            return;
+        }
+        int mid = (l + r) >> 1;
+        update(id << 1, li, l, mid, u, v);
+        update(id << 1 | 1, li, mid + 1, r, u, v);
+    }
+
+    int get(int id, int l, int r, int pos)
+    {
+        int res = st[id].cal(pos);
+        if (l == r)
+        {
+            return res;
+        }
+        int mid = (l + r) >> 1;
+        if (pos <= mid)
+            res = get(id << 1, l, mid, pos);
+        else
+            res = get(id << 1 | 1, mid + 1, r, pos);
+        return res;
+    }
+};

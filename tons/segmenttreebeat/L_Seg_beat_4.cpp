@@ -39,16 +39,18 @@ struct SegmentTree
 {
     struct Node
     {
-        long long val, sum;
+        long long minv, sum, maxv;
         Node(long long _val)
         {
-            val = _val;
+            minv = _val;
             sum = _val;
+            maxv = _val;
         }
         Node()
         {
-            val = -1e18;
+            minv = 1e18;
             sum = 0;
+            maxv = -1e18;
         }
     };
     int n;
@@ -66,7 +68,8 @@ struct SegmentTree
     {
         Node res;
         res.sum = a.sum + b.sum;
-        res.val = max(a.val, b.val);
+        res.minv = min(a.minv, b.minv);
+        res.maxv = max(a.maxv, b.maxv);
         return res;
     }
     void down(int id, int l, int r)
@@ -74,10 +77,12 @@ struct SegmentTree
         if (lazy[id] != 0)
         {
             int mid = (l + r) >> 1;
-            st[id << 1].val += lazy[id];
+            st[id << 1].minv += lazy[id];
+            st[id << 1].maxv += lazy[id];
             st[id << 1].sum += lazy[id] * (mid - l + 1);
             lazy[id << 1] += lazy[id];
-            st[id << 1 | 1].val += lazy[id];
+            st[id << 1 | 1].minv += lazy[id];
+            st[id << 1 | 1].maxv += lazy[id];
             st[id << 1 | 1].sum += lazy[id] * (r - mid);
             lazy[id << 1 | 1] += lazy[id];
             lazy[id] = 0;
@@ -114,33 +119,52 @@ struct SegmentTree
     {
         if (v < l || r < u)
             return;
-        if (st[id].val <= val)
+        if (st[id].maxv <= val)
             return;
+        down(id, l, r);
         if (l == r)
         {
-            int sum = st[id].sum, dif = st[id].val - val;
-            st[id] = Node(min(st[id].val, val));
+            int sum = st[id].sum, dif = st[id].maxv - val;
+            st[id] = Node(min(st[id].maxv, val));
             st[id].sum = sum - dif;
             return;
         }
-        down(id, l, r);
         int mid = (l + r) >> 1;
         updateuv(id << 1, l, mid, u, v, val);
         updateuv(id << 1 | 1, mid + 1, r, u, v, val);
+        st[id] = merge(st[id << 1], st[id << 1 | 1]);
+    }
+    void updateuvmax(int id, int l, int r, int u, int v, long long val)
+    {
+        if (v < l || r < u)
+            return;
+        if (st[id].minv >= val)
+            return;
+        down(id, l, r);
+        if (l == r)
+        {
+            int sum = st[id].sum, dif = val - st[id].minv;
+            st[id] = Node(max(st[id].minv, val));
+            st[id].sum = sum + dif;
+            return;
+        }
+        int mid = (l + r) >> 1;
+        updateuvmax(id << 1, l, mid, u, v, val);
+        updateuvmax(id << 1 | 1, mid + 1, r, u, v, val);
         st[id] = merge(st[id << 1], st[id << 1 | 1]);
     }
     void updatesum(int id, int l, int r, int u, int v, long long val)
     {
         if (v < l || r < u)
             return;
+        down(id, l, r);
         if (u <= l && r <= v)
         {
-            st[id].val += val;
+            st[id].minv += val;
             st[id].sum += val * (r - l + 1);
             lazy[id] += val;
             return;
         }
-        down(id, l, r);
         int mid = (l + r) >> 1;
         updatesum(id << 1, l, mid, u, v, val);
         updatesum(id << 1 | 1, mid + 1, r, u, v, val);
@@ -168,7 +192,7 @@ void solve()
     {
         int op;
         cin >> op;
-        if (op == 2)
+        if (op == 3)
         {
             int l, r;
             cin >> l >> r;
@@ -180,11 +204,17 @@ void solve()
             cin >> l >> r >> x;
             seg.updateuv(1, 1, n, l, r, x);
         }
-        else
+        else if (op == 2)
         {
             int l, r, x;
             cin >> l >> r >> x;
             seg.updatesum(1, 1, n, l, r, x);
+        }
+        else
+        {
+            int l, r, x;
+            cin >> l >> r >> x;
+            seg.updateuvmax(1, 1, n, l, r, x);
         }
     }
 }
