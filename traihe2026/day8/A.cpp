@@ -82,3 +82,82 @@ main()
     Yet, those hands will never hold anything
     So as I pray, unlimited blade works.
 */
+int chainID[N], headchain[N], pos[N], t[N], sz[N], par[N], curchain = 1, timer = 1, depth[N], heavy[N];
+vector<int> adj[N];
+void dfs(int u, int p)
+{
+    par[u] = p;
+    sz[u] = 1;
+    int mx = 0;
+    for (int v : adj[u])
+    {
+        if (v != p)
+        {
+            depth[v] = depth[u] + 1;
+            dfs(v, u);
+            if (sz[v] > sz[mx])
+                mx = v;
+            sz[u] += sz[v];
+        }
+    }
+    heavy[u] = mx;
+}
+void HLD(int u, int p)
+{
+    if (!headchain[curchain])
+        headchain[curchain] = u;
+    chainID[u] = curchain;
+    pos[u] = timer;
+    t[timer] = u;
+    timer++;
+    int bigC = heavy[u];
+    if (bigC)
+        HLD(bigC, u);
+    for (auto v : adj[u])
+    {
+        if (v != p && v != bigC)
+        {
+            curchain++;
+            HLD(v, u);
+        }
+    }
+}
+int tree[4 * N];
+void update(int node, int l, int r, int pos, int val)
+{
+    if (pos < l || pos > r)
+        return;
+    if (l == r)
+    {
+        tree[node] = val;
+        return;
+    }
+    int mid = (l + r) / 2;
+    update(2 * node, l, mid, pos, val);
+    update(2 * node + 1, mid + 1, r, pos, val);
+    tree[node] = min(tree[2 * node], tree[2 * node + 1]);
+}
+int query(int node, int l, int r, int x, int y)
+{
+    if (x > r || y < l)
+        return -1e9;
+    if (x <= l && r <= y)
+        return tree[node];
+    int mid = (l + r) / 2;
+    return min(query(2 * node, l, mid, x, y), query(2 * node + 1, mid + 1, r, x, y));
+}
+int hget(int x, int y)
+{
+    int ans = 0;
+    for (; chainID[x] != chainID[y]; y = par[headchain[chainID[y]]])
+    {
+        if (depth[headchain[chainID[x]]] > depth[headchain[chainID[y]]])
+            swap(x, y);
+        ans += query(1, 1, n, pos[headchain[chainID[y]]], pos[y]);
+    }
+    if (depth[x] > depth[y])
+        swap(x, y);
+    if (pos[x] + 1 <= pos[y])
+        ans += query(1, 1, n, pos[x] + 1, pos[y]);
+    return ans;
+}

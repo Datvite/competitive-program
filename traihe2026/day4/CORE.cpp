@@ -146,9 +146,7 @@ void solve()
         }
 
         if (sumd == 0)
-        {
             ans += '1';
-        }
         else
         {
             if (dinic.max_flow() == sumd)
