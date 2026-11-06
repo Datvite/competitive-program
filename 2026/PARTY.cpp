@@ -46,9 +46,7 @@ void solve()
         {
             dp[i][j] = dp[i - 1][j];
             if (j >= i)
-            {
                 dp[i][j] = add(dp[i][j], dp[i][j - i]);
-            }
         }
     }
     cout << dp[k][lim] << endl;
