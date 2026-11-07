@@ -39,13 +39,13 @@ int n, m, s, t, dist[N];
 vector<ii> adj[N];
 vector<int> radj[N];
 
-void bfs_backward(int target)
+void bfs(int t)
 {
     for (int i = 1; i <= n; i++)
         dist[i] = 1e18;
-    dist[target] = 0;
+    dist[t] = 0;
     queue<int> q;
-    q.push(target);
+    q.push(t);
 
     while (!q.empty())
     {
@@ -76,7 +76,7 @@ void solve()
     for (int i = 1; i <= n; i++)
         sort(all(adj[i]));
 
-    bfs_backward(t);
+    bfs(t);
 
     vector<int> edge_path;
     int cur = s;

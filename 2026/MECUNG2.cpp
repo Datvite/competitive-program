@@ -46,15 +46,15 @@ bool inside(int x, int y)
     return (1 <= x && x <= m && 1 <= y && y <= n);
 }
 
-void bfs(int startX, int startY)
+void bfs(int sx, int sy)
 {
     for (int i = 1; i <= m; i++)
         for (int j = 1; j <= n; j++)
             dist[i][j] = -1;
 
     queue<ii> qu;
-    dist[startX][startY] = 0;
-    qu.push({startX, startY});
+    dist[sx][sy] = 0;
+    qu.push({sx, sy});
 
     while (!qu.empty())
     {

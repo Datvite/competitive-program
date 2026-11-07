@@ -46,15 +46,15 @@ bool inside(int x, int y)
     return (1 <= x && x <= m && 1 <= y && y <= n);
 }
 
-void bfs01(int startX, int startY)
+void bfs01(int sx, int sy)
 {
     for (int i = 1; i <= m; i++)
         for (int j = 1; j <= n; j++)
             dist[i][j] = 1e18;
 
     deque<ii> dq;
-    dist[startX][startY] = 0;
-    dq.push_back({startX, startY});
+    dist[sx][sy] = 0;
+    dq.push_back({sx, sy});
 
     while (!dq.empty())
     {

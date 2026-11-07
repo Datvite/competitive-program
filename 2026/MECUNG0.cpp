@@ -47,11 +47,11 @@ bool inside(int x, int y)
     return (1 <= x && x <= m && 1 <= y && y <= n);
 }
 
-void bfs(int startX, int startY)
+void bfs(int sx, int sy)
 {
     queue<ii> qu;
-    vis[startX][startY] = true;
-    qu.push({startX, startY});
+    vis[sx][sy] = true;
+    qu.push({sx, sy});
 
     while (!qu.empty())
     {

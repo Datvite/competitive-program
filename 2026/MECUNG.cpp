@@ -47,7 +47,7 @@ bool inside(int x, int y)
     return (1 <= x && x <= m && 1 <= y && y <= n);
 }
 
-bool is_border(int x, int y)
+bool check(int x, int y)
 {
     return (x == 1 || x == m || y == 1 || y == n);
 }
@@ -68,11 +68,11 @@ void solve()
     trace[sx][sy] = {-1, -1};
     qu.push({sx, sy});
 
-    ii dest = {-1, -1};
+    ii res = {-1, -1};
 
-    if (is_border(sx, sy))
+    if (check(sx, sy))
     {
-        dest = {sx, sy};
+        res = {sx, sy};
     }
     else
     {
@@ -81,9 +81,9 @@ void solve()
             auto [x, y] = qu.front();
             qu.pop();
 
-            if (is_border(x, y))
+            if (check(x, y))
             {
-                dest = {x, y};
+                res = {x, y};
                 break;
             }
 
@@ -102,16 +102,16 @@ void solve()
         }
     }
 
-    if (dest.fi == -1)
+    if (res.fi == -1)
     {
         cout << 0 << endl;
         return;
     }
 
-    cout << dist[dest.fi][dest.se] << endl;
+    cout << dist[res.fi][res.se] << endl;
 
     vector<ii> path;
-    ii cur = dest;
+    ii cur = res;
     while (cur.fi != -1)
     {
         path.push_back(cur);
