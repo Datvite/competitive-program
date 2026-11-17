@@ -37,30 +37,28 @@ int mul(int a, int b)
 
 int m, n, k;
 bool blocked[N][N], vis[N][N];
-
 int dx[] = {-1, 1, 0, 0};
 int dy[] = {0, 0, -1, 1};
-
 bool inside(int x, int y)
 {
     return (1 <= x && x <= m && 1 <= y && y <= n);
 }
 
-void bfs(int startX, int startY)
+void bfs(int sx, int sy)
 {
     queue<ii> qu;
-    vis[startX][startY] = true;
-    qu.push({startX, startY});
+    vis[sx][sy] = true;
+    qu.push({sx, sy});
 
     while (!qu.empty())
     {
         auto [x, y] = qu.front();
         qu.pop();
 
-        for (int step = 0; step < 4; step++)
+        for (int k = 0; k < 4; k++)
         {
-            int nx = x + dx[step];
-            int ny = y + dy[step];
+            int nx = x + dx[k];
+            int ny = y + dy[k];
 
             if (inside(nx, ny) && !blocked[nx][ny] && !vis[nx][ny])
             {
@@ -87,20 +85,20 @@ void solve()
                 blocked[r][c] = true;
     }
 
-    int regions = 0;
+    int res = 0;
     for (int i = 1; i <= m; i++)
     {
         for (int j = 1; j <= n; j++)
         {
             if (!blocked[i][j] && !vis[i][j])
             {
-                regions++;
+                res++;
                 bfs(i, j);
             }
         }
     }
 
-    cout << regions << endl;
+    cout << res << endl;
 }
 
 main()

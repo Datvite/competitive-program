@@ -10,7 +10,6 @@
         freopen(tenfile ".out", "w", stdout); \
     }
 #define int long long
-#define all(x) x.begin(), x.end()
 #define fi first
 #define se second
 #define ii pair<int, int>
@@ -19,7 +18,7 @@
 #define Off(mask, pos) (mask ^ (1LL << pos))
 #define endl "\n"
 using namespace std;
-const int N = 1e3 + 69;
+const int N = 1e6 + 69;
 const int BASE = 256;
 const int MOD = 1e9 + 7;
 int add(int a, int b)
@@ -34,98 +33,71 @@ int mul(int a, int b)
 {
     return ((a % MOD) * (b % MOD)) % MOD;
 }
-
-int m, n, sx, sy;
-char a[N][N], move_to[N][N];
-bool vis[N][N];
-ii trace[N][N];
-
-int dx[] = {-1, 1, 0, 0};
-int dy[] = {0, 0, -1, 1};
-char dir[] = {'N', 'S', 'W', 'E'};
-
-bool inside(int x, int y)
+int n, m, k, a[N], par[N], sz[N];
+vector<int> adj[N];
+bool open[N];
+int acs(int x)
 {
-    return (1 <= x && x <= m && 1 <= y && y <= n);
+    if (par[x] == x)
+        return x;
+    return par[x] = acs(par[x]);
 }
-
-bool is_border(int x, int y)
+void join(int x, int y)
 {
-    return (x == 1 || x == m || y == 1 || y == n);
+    x = acs(x);
+    y = acs(y);
+    if (x != y)
+    {
+        if (sz[x] < sz[y])
+            swap(x, y);
+        par[y] = x;
+        sz[x] += sz[y];
+    }
 }
-
 void solve()
 {
+    for (int i = 1; i < N; i++)
+    {
+        par[i] = i;
+        sz[i] = 1;
+    }
     for (int i = 1; i <= m; i++)
     {
-        for (int j = 1; j <= n; j++)
+        int x, y;
+        cin >> x >> y;
+        adj[x].push_back(y);
+        adj[y].push_back(x);
+    }
+    for (int i = 1; i <= k; i++)
+    {
+        int x, y;
+        char ch;
+        cin >> ch;
+        if (ch == 'X')
         {
-            cin >> a[i][j];
-            if (a[i][j] == '*')
+            cin >> x;
+            open[x] = 1;
+            for (auto v : adj[x])
             {
-                sx = i;
-                sy = j;
+                if (open[v])
+                    join(x, v);
             }
         }
-    }
-
-    if (is_border(sx, sy))
-    {
-        cout << "" << endl;
-        return;
-    }
-
-    queue<ii> qu;
-    vis[sx][sy] = true;
-    qu.push({sx, sy});
-
-    ii dest = {-1, -1};
-
-    while (!qu.empty())
-    {
-        auto [x, y] = qu.front();
-        qu.pop();
-
-        if (is_border(x, y))
+        else
         {
-            dest = {x, y};
-            break;
+            cin >> x >> y;
+            if (acs(x) == acs(y))
+                cout << "Y";
+            else
+                cout << "N";
         }
-
-        for (int k = 0; k < 4; k++)
-        {
-            int nx = x + dx[k];
-            int ny = y + dy[k];
-
-            if (inside(nx, ny) && a[nx][ny] != '#' && !vis[nx][ny])
-            {
-                vis[nx][ny] = true;
-                trace[nx][ny] = {x, y};
-                move_to[nx][ny] = dir[k];
-                qu.push({nx, ny});
-            }
-        }
-    }
-
-    if (dest.fi != -1)
-    {
-        string ans = "";
-        ii cur = dest;
-        while (cur != make_pair(sx, sy))
-        {
-            ans += move_to[cur.fi][cur.se];
-            cur = trace[cur.fi][cur.se];
-        }
-        reverse(all(ans));
-        cout << ans << endl;
     }
 }
-
 main()
 {
     skibidi;
     file("LABYRINTH");
-    cin >> m >> n;
+    cin >> n >> m >> k;
     solve();
 }
 /*  I am the bone of my sword
